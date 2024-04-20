@@ -42,9 +42,13 @@ end
     @test orient(a,b,c) == CPredicates.orient(a, b, c)
     @test_broken orient(a,b,c) == ExactPredicates.orient(a,b,c)
 
-    (a,b,c) = (a = 0.0 + 0.0im, b = 0.0 + 5.495397811658139e-246im, c = -4.495267265324774e-79 - 1.382478711138964e-74im)
-    @test_broken orient(a,b,c) == CPredicates.orient(a, b, c)
+    (a, b, c) = (a = 0.0 + 0.0im, b = 0.0 + 5.0e-324im, c = 5.0e-324 + 0.0im)
+    @test orient(a,b,c) == CPredicates.orient(a, b, c)
     @test_broken orient(a,b,c) == ExactPredicates.orient(a,b,c)
+
+    (a,b,c) = (a = 0.0 + 0.0im, b = 0.0 + 5.495397811658139e-246im, c = -4.495267265324774e-79 - 1.382478711138964e-74im)
+    @test orient(a,b,c) == CPredicates.orient(a, b, c)
+    @test orient(a,b,c) == ExactPredicates.orient(a,b,c)
 end
 
 const floatgen = Data.Floats{Float64}()
@@ -60,6 +64,11 @@ end
 #     dir == edir
 # end
 
+@check function output(a=complexgen, b=complexgen, c=complexgen)
+    orient(a,b,c) ∈ (-1, 0, 1)
+end
+
+# Note: This should be true for all, if not this is a bug in the port
 @check function orient_against_c(a=complexgen, b=complexgen, c=complexgen)
     dir = orient(a,b,c)
     event!("Port", dir)
@@ -68,9 +77,18 @@ end
     dir == cdir
 end
 
+# The next two should agree
 @check function orient_against_exact(a=complexgen, b=complexgen, c=complexgen)
     dir = orient(a,b,c)
-    event!("Port", dir)
+    event!("Adaptive", dir)
+    edir =  ExactPredicates.orient(a,b,c)
+    event!("Exact", edir)
+    dir == edir
+end
+
+@check function orient_c_against_exact(a=complexgen, b=complexgen, c=complexgen)
+    dir = CPredicates.orient(a,b,c)
+    event!("Original", dir)
     edir =  ExactPredicates.orient(a,b,c)
     event!("Exact", edir)
     dir == edir

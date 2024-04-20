@@ -130,18 +130,26 @@ function fast_expansion_sum_zeroelim(elen::Int, e, flen::Int, f, h)::Int
 	end
   end
 
-  while eindex < elen
+  while eindex <= elen
     Qnew, hh = Two_Sum(Q, enow)
-    enow = e[eindex += 1]
+    eindex += 1
+    # We need an extra iteration to calculate Q
+    # but we don't want to access e
+    if eindex <= elen
+        enow = e[eindex]
+    end
     Q = Qnew
     if hh != 0.0
       h[hindex += 1] = hh
 	end
   end
 
-  while findex < flen
+  while findex <= flen
     Qnew, hh = Two_Sum(Q, fnow)
-    fnow = f[findex += 1]
+    findex += 1
+    if findex <= flen
+        fnow = f[findex]
+    end
     Q = Qnew
     if hh != 0.0
       h[hindex += 1] = hh
