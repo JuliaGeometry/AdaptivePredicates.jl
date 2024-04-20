@@ -90,7 +90,8 @@ end
 	will be also.)  Does NOT maintain the nonoverlapping or nonadjacent
 	properties.                  
 """
-function fast_expansion_sum_zeroelim(elen::Int, e, flen::Int, f, h)::Int 
+@inline function fast_expansion_sum_zeroelim(elen::Int, e, flen::Int, f, h)::Int
+  @inbounds begin
   enow = e[1]
   fnow = f[1]
   eindex = findex = 1
@@ -159,4 +160,5 @@ function fast_expansion_sum_zeroelim(elen::Int, e, flen::Int, f, h)::Int
     h[hindex += 1] = Q
   end
   return hindex
+end
 end

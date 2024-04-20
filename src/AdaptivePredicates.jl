@@ -140,7 +140,7 @@ function orient2adapt(pa, pb, pc, detsum::Float64)::Float64
   u = (u0, u1, u2, u3)
   Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, D)
 
-  return D[Dlength] # originally Dlength - 1 
+  return @inbounds D[Dlength] # originally Dlength - 1 
 end
 
 

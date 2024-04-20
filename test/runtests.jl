@@ -4,8 +4,8 @@ using Supposition
 using AdaptivePredicates
 
 cd("original") do
-    if !ispath("libpredicates.so")
-        run(`gcc -shared -fPIC -O3 predicates.c -o libpredicates.so`)
+    if !isfile("libpredicates.so")
+        run(`gcc -shared -fPIC -g2 predicates.c -o libpredicates.so`)
     end
 end
 include("original/CPredicates.jl")
