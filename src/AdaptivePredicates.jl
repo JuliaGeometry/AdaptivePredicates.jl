@@ -1,7 +1,5 @@
 module AdaptivePredicates
 
-using StaticArrays
-
 export orient2
 
 function find_epsilon()
@@ -16,14 +14,14 @@ function find_epsilon()
     # /*   rounding.  Not that this library will work on such machines anyway. */
     cond = true
     while cond
-    lastcheck = check
-    epsilon *= half
-    if (every_other)
+      lastcheck = check
+      epsilon *= half
+      if (every_other)
         splitter *= 2.0
-    end
-    every_other = !every_other
-    check = 1.0 + epsilon
-    cond = ((check != 1.0) && (check != lastcheck))
+      end
+      every_other = !every_other
+      check = 1.0 + epsilon
+      cond = ((check != 1.0) && (check != lastcheck))
     end
     splitter += 1.0
     return epsilon, splitter
@@ -85,10 +83,6 @@ function orient2(pa, pb, pc)::Float64
 end
 
 function orient2adapt(pa, pb, pc, detsum::Float64)::Float64
-  C1 = MVector{8, Float64}(undef)
-  C2 = MVector{12, Float64}(undef)
-  D  = MVector{16, Float64}(undef)
-	
   acx = (pa[1] - pc[1])
   bcx = (pb[1] - pc[1])
   acy = (pa[2] - pc[2])
@@ -126,20 +120,19 @@ function orient2adapt(pa, pb, pc, detsum::Float64)::Float64
   t1, t0 = Two_Product(acytail, bcx)
   u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
   u = (u0, u1, u2, u3)
-  C1length = fast_expansion_sum_zeroelim(4, B, 4, u, C1)
+  C1, C1length = fast_expansion_sum_zeroelim(4, B, 4, u, Val(8))
 
   s1, s0 = Two_Product(acx, bcytail)
   t1, t0 = Two_Product(acy, bcxtail)
   u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
   u = (u0, u1, u2, u3)
-  C2length = fast_expansion_sum_zeroelim(C1length, C1, 4, u, C2)
+  C2, C2length = fast_expansion_sum_zeroelim(C1length, C1, 4, u, Val(12))
 
   s1, s0 = Two_Product(acxtail, bcytail)
   t1, t0 = Two_Product(acytail, bcxtail)
   u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
   u = (u0, u1, u2, u3)
-  Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, D)
-
+  D, Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, Val(16))  
   return @inbounds D[Dlength] # originally Dlength - 1 
 end
 
