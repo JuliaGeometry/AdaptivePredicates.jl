@@ -5,9 +5,19 @@ using AdaptivePredicates
 
 cd("original") do
     if !isfile("libpredicates.so")
-        run(`gcc -shared -fPIC -g2 predicates.c -o libpredicates.so`)
+        if Sys.iswindows()
+            # random(), being a POSIX function, is not available on Windows. We need to use rand().
+            pred = read("predicates.c", String)
+            new_pred = replace(pred, "random()" => "rand()")
+            write("_predicates.c", new_pred)
+            pred_path = "_predicates.c"
+        else 
+            pred_path = "predicates.c" 
+        end
+        run(`gcc -shared -fPIC -g2 $pred_path -o libpredicates.so`)
     end
 end
+
 include("original/CPredicates.jl")
 
 function orient(a::Complex, b::Complex, c::Complex)
@@ -81,7 +91,7 @@ end
 @check function orient_against_exact(a=complexgen, b=complexgen, c=complexgen)
     dir = orient(a,b,c)
     event!("Adaptive", dir)
-    edir =  ExactPredicates.orient(a,b,c)
+    edir = ExactPredicates.orient(a,b,c)
     event!("Exact", edir)
     dir == edir
 end
@@ -89,7 +99,7 @@ end
 @check function orient_c_against_exact(a=complexgen, b=complexgen, c=complexgen)
     dir = CPredicates.orient(a,b,c)
     event!("Original", dir)
-    edir =  ExactPredicates.orient(a,b,c)
+    edir = ExactPredicates.orient(a,b,c)
     event!("Exact", edir)
     dir == edir
 end
