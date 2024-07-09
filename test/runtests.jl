@@ -5,17 +5,30 @@ using AdaptivePredicates
 
 cd("original") do
     if !isfile("libpredicates.so")
+        pred = read("predicates.c", String)
         if Sys.iswindows()
             # random(), being a POSIX function, is not available on Windows. We need to use rand().
-            pred = read("predicates.c", String)
             new_pred = replace(pred, "random()" => "rand()")
             write("_predicates.c", new_pred)
-            pred_path = "_predicates.c"
         else
-            pred_path = "predicates.c"
+            write("_predicates.c", pred)
         end
-        run(`gcc -shared -fPIC -g2 $pred_path -o libpredicates.so`)
+        ## Append function definitions of the macros to pred_path, allowing for them to be 
+        ## @ccalled for the purpose of testing 
+        open("_predicates.c", "a") do io
+            for line in eachline("macro_defs.txt")
+                write(io, line * "\n")
+            end
+        end
+        ## Now make
+        run(`gcc -shared -fPIC -g2 _predicates.c -o libpredicates.so`)
+        rm("_predicates.c")
     end
+
+    ## Run the macro conversion tests 
+    run(`gcc -o macro_tests macro_defs.c`)
+    run(`macro_tests`)
+    rm("macro_tests.exe")
 end
 
 include("original/CPredicates.jl")

@@ -3,3 +3,4 @@ libpredicates.so
 Manifest.toml
 orient_*
 output*
+.vscode
