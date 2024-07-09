@@ -90,7 +90,7 @@ const AP = AdaptivePredicates
 @test _isperrboundC == AP.isperrboundC
 
 const F64 = Float64
-const NTESTS = 100
+const NTESTS = 1000
 const L = 1.793662034335766e-43
 const R = 3.2138760885179806e10
 function _rand()
@@ -100,125 +100,127 @@ function _rand(n)
     return [_rand() for _ in 1:n]
 end
 
-for _ in 1:NTESTS
-    a = _rand()
-    @test AdaptivePredicates.Absolute(a) == @ccall libpredicates._Absolute(a::F64)::F64
+@testset "Test macros" begin
+    for _ in 1:NTESTS
+        a = _rand()
+        @test AdaptivePredicates.Absolute(a) == @ccall libpredicates._Absolute(a::F64)::F64
 
-    a, b, x = _rand(3)
-    @test AdaptivePredicates.Fast_Two_Sum_Tail(a, b, x) ==
-          @ccall libpredicates._Fast_Two_Sum_Tail(a::F64, b::F64, x::F64)::F64
+        a, b, x = _rand(3)
+        @test AdaptivePredicates.Fast_Two_Sum_Tail(a, b, x) ==
+              @ccall libpredicates._Fast_Two_Sum_Tail(a::F64, b::F64, x::F64)::F64
 
-    a, b = _rand(2)
-    @test AdaptivePredicates.Fast_Two_Sum(a, b) ==
-          @ccall libpredicates._Fast_Two_Sum(a::F64, b::F64)::NTuple{2,Cdouble}
+        a, b = _rand(2)
+        @test AdaptivePredicates.Fast_Two_Sum(a, b) ==
+              @ccall libpredicates._Fast_Two_Sum(a::F64, b::F64)::NTuple{2,Cdouble}
 
-    a, b, x = _rand(3)
-    @test AdaptivePredicates.Fast_Two_Diff_Tail(a, b, x) ==
-          @ccall libpredicates._Fast_Two_Diff_Tail(a::F64, b::F64, x::F64)::F64
+        a, b, x = _rand(3)
+        @test AdaptivePredicates.Fast_Two_Diff_Tail(a, b, x) ==
+              @ccall libpredicates._Fast_Two_Diff_Tail(a::F64, b::F64, x::F64)::F64
 
-    a, b = _rand(2)
-    @test AdaptivePredicates.Fast_Two_Diff(a, b) ==
-          @ccall libpredicates._Fast_Two_Diff(a::F64, b::F64)::NTuple{2,Cdouble}
+        a, b = _rand(2)
+        @test AdaptivePredicates.Fast_Two_Diff(a, b) ==
+              @ccall libpredicates._Fast_Two_Diff(a::F64, b::F64)::NTuple{2,Cdouble}
 
-    a, b, x = _rand(3)
-    @test AdaptivePredicates.Two_Sum_Tail(a, b, x) ==
-          @ccall libpredicates._Two_Sum_Tail(a::F64, b::F64, x::F64)::F64
+        a, b, x = _rand(3)
+        @test AdaptivePredicates.Two_Sum_Tail(a, b, x) ==
+              @ccall libpredicates._Two_Sum_Tail(a::F64, b::F64, x::F64)::F64
 
-    a, b = _rand(2)
-    @test AdaptivePredicates.Two_Sum(a, b) ==
-          @ccall libpredicates._Two_Sum(a::F64, b::F64)::NTuple{2,Cdouble}
+        a, b = _rand(2)
+        @test AdaptivePredicates.Two_Sum(a, b) ==
+              @ccall libpredicates._Two_Sum(a::F64, b::F64)::NTuple{2,Cdouble}
 
-    a, b, x = _rand(3)
-    @test AdaptivePredicates.Two_Diff_Tail(a, b, x) ==
-          @ccall libpredicates._Two_Diff_Tail(a::F64, b::F64, x::F64)::F64
+        a, b, x = _rand(3)
+        @test AdaptivePredicates.Two_Diff_Tail(a, b, x) ==
+              @ccall libpredicates._Two_Diff_Tail(a::F64, b::F64, x::F64)::F64
 
-    a, b = _rand(2)
-    @test AdaptivePredicates.Two_Diff(a, b) ==
-          @ccall libpredicates._Two_Diff(a::F64, b::F64)::NTuple{2,Cdouble}
+        a, b = _rand(2)
+        @test AdaptivePredicates.Two_Diff(a, b) ==
+              @ccall libpredicates._Two_Diff(a::F64, b::F64)::NTuple{2,Cdouble}
 
-    a = _rand()
-    @test AdaptivePredicates.Split(a) ==
-          @ccall libpredicates._Split(a::F64)::NTuple{2,Cdouble}
+        a = _rand()
+        @test AdaptivePredicates.Split(a) ==
+              @ccall libpredicates._Split(a::F64)::NTuple{2,Cdouble}
 
-    a, b, x = _rand(3)
-    @test AdaptivePredicates.Two_Product_Tail(a, b, x) ==
-          @ccall libpredicates._Two_Product_Tail(a::F64, b::F64, x::F64)::F64
+        a, b, x = _rand(3)
+        @test AdaptivePredicates.Two_Product_Tail(a, b, x) ==
+              @ccall libpredicates._Two_Product_Tail(a::F64, b::F64, x::F64)::F64
 
-    a, b = _rand(2)
-    @test AdaptivePredicates.Two_Product(a, b) ==
-          @ccall libpredicates._Two_Product(a::F64, b::F64)::NTuple{2,Cdouble}
+        a, b = _rand(2)
+        @test AdaptivePredicates.Two_Product(a, b) ==
+              @ccall libpredicates._Two_Product(a::F64, b::F64)::NTuple{2,Cdouble}
 
-    a, b, bhi, blo = _rand(4)
-    @test AdaptivePredicates.Two_Product_Presplit(a, b, bhi, blo) ==
-          @ccall libpredicates._Two_Product_Presplit(a::F64, b::F64, bhi::F64, blo::F64)::NTuple{2,Cdouble}
+        a, b, bhi, blo = _rand(4)
+        @test AdaptivePredicates.Two_Product_Presplit(a, b, bhi, blo) ==
+              @ccall libpredicates._Two_Product_Presplit(a::F64, b::F64, bhi::F64, blo::F64)::NTuple{2,Cdouble}
 
-    a, b, ahi, alo, bhi, blo = _rand(6)
-    @test AdaptivePredicates.Two_Product_2Presplit(a, ahi, alo, b, bhi, blo) ==
-          @ccall libpredicates._Two_Product_2Presplit(a::F64, ahi::F64, alo::F64,
-        b::F64, bhi::F64, blo::F64)::NTuple{2,Cdouble}
+        a, b, ahi, alo, bhi, blo = _rand(6)
+        @test AdaptivePredicates.Two_Product_2Presplit(a, ahi, alo, b, bhi, blo) ==
+              @ccall libpredicates._Two_Product_2Presplit(a::F64, ahi::F64, alo::F64,
+            b::F64, bhi::F64, blo::F64)::NTuple{2,Cdouble}
 
-    a, x = _rand(2)
-    @test AdaptivePredicates.Square_Tail(a, x) ==
-          @ccall libpredicates._Square_Tail(a::F64, x::F64)::F64
+        a, x = _rand(2)
+        @test AdaptivePredicates.Square_Tail(a, x) ==
+              @ccall libpredicates._Square_Tail(a::F64, x::F64)::F64
 
-    a = _rand()
-    @test AdaptivePredicates.Square(a) ==
-          @ccall libpredicates._Square(a::F64)::NTuple{2,Cdouble}
+        a = _rand()
+        @test AdaptivePredicates.Square(a) ==
+              @ccall libpredicates._Square(a::F64)::NTuple{2,Cdouble}
 
-    a1, a0, b = _rand(3)
-    @test AdaptivePredicates.Two_One_Sum(a1, a0, b) ==
-          @ccall libpredicates._Two_One_Sum(a1::F64, a0::F64, b::F64)::NTuple{3,Cdouble}
+        a1, a0, b = _rand(3)
+        @test AdaptivePredicates.Two_One_Sum(a1, a0, b) ==
+              @ccall libpredicates._Two_One_Sum(a1::F64, a0::F64, b::F64)::NTuple{3,Cdouble}
 
-    a1, a0, b = _rand(3)
-    @test AdaptivePredicates.Two_One_Diff(a1, a0, b) ==
-          @ccall libpredicates._Two_One_Diff(a1::F64, a0::F64, b::F64)::NTuple{3,Cdouble}
+        a1, a0, b = _rand(3)
+        @test AdaptivePredicates.Two_One_Diff(a1, a0, b) ==
+              @ccall libpredicates._Two_One_Diff(a1::F64, a0::F64, b::F64)::NTuple{3,Cdouble}
 
-    a1, a0, b1, b0 = _rand(4)
-    @test AdaptivePredicates.Two_Two_Sum(a1, a0, b1, b0) ==
-          @ccall libpredicates._Two_Two_Sum(a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{4,Cdouble}
+        a1, a0, b1, b0 = _rand(4)
+        @test AdaptivePredicates.Two_Two_Sum(a1, a0, b1, b0) ==
+              @ccall libpredicates._Two_Two_Sum(a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{4,Cdouble}
 
-    a1, a0, b1, b0 = _rand(4)
-    @test AdaptivePredicates.Two_Two_Diff(a1, a0, b1, b0) ==
-          @ccall libpredicates._Two_Two_Diff(a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{4,Cdouble}
+        a1, a0, b1, b0 = _rand(4)
+        @test AdaptivePredicates.Two_Two_Diff(a1, a0, b1, b0) ==
+              @ccall libpredicates._Two_Two_Diff(a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{4,Cdouble}
 
-    a3, a2, a1, a0, b = _rand(5)
-    @test AdaptivePredicates.Four_One_Sum(a3, a2, a1, a0, b) ==
-          @ccall libpredicates._Four_One_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{5,Cdouble}
+        a3, a2, a1, a0, b = _rand(5)
+        @test AdaptivePredicates.Four_One_Sum(a3, a2, a1, a0, b) ==
+              @ccall libpredicates._Four_One_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{5,Cdouble}
 
-    a3, a2, a1, a0, b1, b0 = _rand(6)
-    @test AdaptivePredicates.Four_Two_Sum(a3, a2, a1, a0, b1, b0) ==
-          @ccall libpredicates._Four_Two_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{6,Cdouble}
+        a3, a2, a1, a0, b1, b0 = _rand(6)
+        @test AdaptivePredicates.Four_Two_Sum(a3, a2, a1, a0, b1, b0) ==
+              @ccall libpredicates._Four_Two_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{6,Cdouble}
 
-    a3, a2, a1, a0, b4, b3, b1, b0 = _rand(8)
-    @test AdaptivePredicates.Four_Four_Sum(a3, a2, a1, a0, b4, b3, b1, b0) ==
-          @ccall libpredicates._Four_Four_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b4::F64, b3::F64, b1::F64, b0::F64)::NTuple{8,Cdouble}
+        a3, a2, a1, a0, b4, b3, b1, b0 = _rand(8)
+        @test AdaptivePredicates.Four_Four_Sum(a3, a2, a1, a0, b4, b3, b1, b0) ==
+              @ccall libpredicates._Four_Four_Sum(a3::F64, a2::F64, a1::F64, a0::F64, b4::F64, b3::F64, b1::F64, b0::F64)::NTuple{8,Cdouble}
 
-    a7, a6, a5, a4, a3, a2, a1, a0, b = _rand(9)
-    @test AdaptivePredicates.Eight_One_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b) ==
-          @ccall libpredicates._Eight_One_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{9,Cdouble}
+        a7, a6, a5, a4, a3, a2, a1, a0, b = _rand(9)
+        @test AdaptivePredicates.Eight_One_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b) ==
+              @ccall libpredicates._Eight_One_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{9,Cdouble}
 
-    a7, a6, a5, a4, a3, a2, a1, a0, b1, b0 = _rand(10)
-    @test AdaptivePredicates.Eight_Two_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b1, b0) ==
-          @ccall libpredicates._Eight_Two_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{10,Cdouble}
+        a7, a6, a5, a4, a3, a2, a1, a0, b1, b0 = _rand(10)
+        @test AdaptivePredicates.Eight_Two_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b1, b0) ==
+              @ccall libpredicates._Eight_Two_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64, a0::F64, b1::F64, b0::F64)::NTuple{10,Cdouble}
 
-    a7, a6, a5, a4, a3, a2, a1, a0, b4, b3, b1, b0 = _rand(12)
-    @test AdaptivePredicates.Eight_Four_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b4, b3, b1, b0) ==
-          @ccall libpredicates._Eight_Four_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64,
-        a0::F64, b4::F64, b3::F64, b1::F64, b0::F64)::NTuple{12,Cdouble}
+        a7, a6, a5, a4, a3, a2, a1, a0, b4, b3, b1, b0 = _rand(12)
+        @test AdaptivePredicates.Eight_Four_Sum(a7, a6, a5, a4, a3, a2, a1, a0, b4, b3, b1, b0) ==
+              @ccall libpredicates._Eight_Four_Sum(a7::F64, a6::F64, a5::F64, a4::F64, a3::F64, a2::F64, a1::F64,
+            a0::F64, b4::F64, b3::F64, b1::F64, b0::F64)::NTuple{12,Cdouble}
 
-    a1, a0, b = _rand(3)
-    @test AdaptivePredicates.Two_One_Product(a1, a0, b) ==
-          @ccall libpredicates._Two_One_Product(a1::F64, a0::F64, b::F64)::NTuple{4,Cdouble}
+        a1, a0, b = _rand(3)
+        @test AdaptivePredicates.Two_One_Product(a1, a0, b) ==
+              @ccall libpredicates._Two_One_Product(a1::F64, a0::F64, b::F64)::NTuple{4,Cdouble}
 
-    a3, a2, a1, a0, b = _rand(5)
-    @test AdaptivePredicates.Four_One_Product(a3, a2, a1, a0, b) ==
-          @ccall libpredicates._Four_One_Product(a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{8,Cdouble}
+        a3, a2, a1, a0, b = _rand(5)
+        @test AdaptivePredicates.Four_One_Product(a3, a2, a1, a0, b) ==
+              @ccall libpredicates._Four_One_Product(a3::F64, a2::F64, a1::F64, a0::F64, b::F64)::NTuple{8,Cdouble}
 
-    a3, a2, a1, a0 = _rand(4)
-    @test AdaptivePredicates.Two_Two_Product(a3, a2, a1, a0) ==
-          @ccall libpredicates._Two_Two_Product(a3::F64, a2::F64, a1::F64, a0::F64)::NTuple{8,Cdouble}
+        a3, a2, a1, a0 = _rand(4)
+        @test AdaptivePredicates.Two_Two_Product(a3, a2, a1, a0) ==
+              @ccall libpredicates._Two_Two_Product(a3::F64, a2::F64, a1::F64, a0::F64)::NTuple{8,Cdouble}
 
-    a1, a0 = _rand(2)
-    @test collect(AdaptivePredicates.Two_Square(a1, a0)) ≈ # Why isn't Two_Square(a1, a0) exactly the same???
-          collect(@ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{,Cdouble}) atol = 1e-14 rtol = 1e-10
+        a1, a0 = _rand(2)
+        @test collect(AdaptivePredicates.Two_Square(a1, a0)) ≈ # Why isn't Two_Square(a1, a0) exactly the same???
+              collect(@ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}) atol = 1e-14 rtol = 1e-10
+    end
 end
