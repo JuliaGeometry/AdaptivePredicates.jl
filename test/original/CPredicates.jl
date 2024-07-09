@@ -1,7 +1,7 @@
 module CPredicates
 const libpredicates = joinpath(@__DIR__, "libpredicates.so")
 
-function _init_()
+function __init__()
     exactinit()
 end
 
