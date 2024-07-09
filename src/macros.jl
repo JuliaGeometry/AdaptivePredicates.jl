@@ -182,7 +182,7 @@ end
     return x3, x2, x1, x0
 end
 
-function Four_One_Product(a3, a2, a1, a0, b)
+@inline function Four_One_Product(a3, a2, a1, a0, b)
     bhi, blo = Split(b)
     _i, x0 = Two_Product_Presplit(a0, b, bhi, blo)
     _j, _0 = Two_Product_Presplit(a1, b, bhi, blo)
@@ -197,7 +197,7 @@ function Four_One_Product(a3, a2, a1, a0, b)
     return x7, x6, x5, x4, x3, x2, x1, x0
 end
 
-function Two_Two_Product(a1, a0, b1, b0)
+@inline function Two_Two_Product(a1, a0, b1, b0)
     a0hi, a0lo = Split(a0)
     bhi, blo = Split(b0)
     _i, x0 = Two_Product_2Presplit(a0, a0hi, a0lo, b0, bhi, blo)
@@ -223,14 +223,4 @@ function Two_Two_Product(a1, a0, b1, b0)
     _k, x5 = Two_Sum(_2, _i)
     x7, x6 = Two_Sum(_m, _k)
     return x7, x6, x5, x4, x3, x2, x1, x0
-end
-
-@inline function Two_Square(a1, a0)
-    _j, x0 = Square(a0)
-    _0 = a0 + a0
-    _k, _1 = Two_Product(a1, _0)
-    _l, _2, x1 = Two_One_Sum(_k, _1, _j)
-    _j, _1 = Square(a1)
-    x5, x4, x3, x2 = Two_Two_Sum(_j, _1, _l, _2)
-    return x5, x4, x3, x2, x1, x0
 end

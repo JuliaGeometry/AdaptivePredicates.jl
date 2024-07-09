@@ -219,12 +219,5 @@ end
         a3, a2, a1, a0 = _rand(4)
         @test AdaptivePredicates.Two_Two_Product(a3, a2, a1, a0) ==
               @ccall libpredicates._Two_Two_Product(a3::F64, a2::F64, a1::F64, a0::F64)::NTuple{8,Cdouble}
-
-        a1, a0 = _rand(2)
-        @test collect(AdaptivePredicates.Two_Square(a1, a0)) ≈ # Why isn't Two_Square(a1, a0) exactly the same???
-              collect(@ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}) atol = 1e-14 rtol = 1e-10
-        ctr += AdaptivePredicates.Two_Square(a1, a0) == @ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}
     end
-    @test_broken ctr == NTESTS
-    @info "Correct Two_Square tests: $ctr out of $NTESTS"
 end
