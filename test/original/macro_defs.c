@@ -6,7 +6,12 @@ to functions. main() runs the tests.
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifdef _WIN32
 #include <sys/time.h>
+#else
+#include <time.h>
+#endif
+
 
 #define REAL double
 #define INEXACT
@@ -1296,7 +1301,7 @@ const char *TestTwoSquare()
 
 /**********************************************/
 
-REAL main()
+int main()
 {
   exactinit();
 

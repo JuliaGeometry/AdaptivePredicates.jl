@@ -1,31 +1,74 @@
+"""
+    Absolute(a) -> Float
+
+Computes `abs(a)`.
+"""
 @inline function Absolute(a)
-    return a ≥ 0 ? a : -a
+    return abs(a) 
+    # Originally a ≥ 0 ? a : -a, but the original code only did that 
+    # because bit masking is difficult in C.
 end
 
+"""
+    Fast_Two_Sum(a, b, x) -> Float
+
+Given `x = a ⊕ b`, returns the roundoff error `y` in the 
+calculation of `x` so that `a + b = x + y`,
+assuming `|a| ≥ |b|`.
+"""
 @inline function Fast_Two_Sum_Tail(a, b, x)
     bvirt = x - a
     y = b - bvirt
     return y
 end
 
+"""
+    Fast_Two_Sum(a, b) -> NTuple{2, Float}
+
+Given `a, b` with `|a| ≥ |b|`, returns `(x, y)`
+where `x = a ⊕ b` and `y` is the roundoff error in computing 
+`x` so that `a + b = x + y`.
+"""
 @inline function Fast_Two_Sum(a, b)
     x = a + b
     y = Fast_Two_Sum_Tail(a, b, x)
     return x, y
 end
 
+"""
+    Fast_Two_Diff_Tail(a, b, x) -> Float
+
+Given `x = a ⊖ b`, returns the roundoff error `y` in the 
+calculation of `x` so that `a - b = x + y`,
+assuming `|a| ≥ |b|`.
+"""
 @inline function Fast_Two_Diff_Tail(a, b, x)
     bvirt = a - x
     y = bvirt - b
     return y
 end
 
+""""
+    Fast_Two_Diff(a, b) -> NTuple{2, Float}
+
+Given `a, b` with `|a| ≥ |b|`, returns `(x, y)` 
+where `x = a ⊖ b` and `y` is the roundoff error in computing 
+`x` so that `a - b = x + y`.
+"""
 @inline function Fast_Two_Diff(a, b)
     x = a - b
     y = Fast_Two_Diff_Tail(a, b, x)
     return x, y
 end
 
+"""
+    Two_Sum_Tail(a, b, x) -> Float
+
+Given `x = a ⊕ b`, returns the roundoff error `y` in the 
+calculation of `x` so that `a + b = x + y`. Note that, 
+unlike [`Fast_Two_Sum_Tail`](@ref), there is no assumption 
+that `|a| ≥ |b|`.
+"""
 @inline function Two_Sum_Tail(a, b, x)
     bvirt = x - a
     avirt = x - bvirt
@@ -35,12 +78,28 @@ end
     return y
 end
 
+"""
+    Two_Sum(a, b) -> NTuple{2, Float}
+
+Given `a, b`, returns `(x, y)` where `x = a ⊕ b` 
+and `y` is the roundoff error in computing `x` so that `a + b = x + y`.
+Note that the only difference between this function and [`Fast_Two_Sum`](@ref)
+is that there is no assumption that `|a| ≥ |b|`.
+"""
 @inline function Two_Sum(a, b)
     x = a + b
     y = Two_Sum_Tail(a, b, x)
     return x, y
 end
 
+"""
+    Two_Diff_Tail(a, b, x) -> Float64
+
+Given `x = a ⊖ b`, returns the roundoff error `y` 
+in the calculation of `x` so that `a - b = x + y`. Note that, 
+unlike [`Fast_Two_Diff_Tail`](@ef), there is no assumption 
+that `|a| ≥ |b|`.
+"""
 @inline function Two_Diff_Tail(a, b, x)
     bvirt = a - x
     avirt = x + bvirt
@@ -50,12 +109,31 @@ end
     return y
 end
 
+"""
+    Two_Diff(a, b) -> NTuple{2, Float64}
+
+Given `a, b`, returns `(x, y)` where `x = a ⊖ b`
+and `y` is the roundoff error in computing `x` so that 
+`a - b = x + y`. Note that the only difference between 
+this function and [`Two_Diff`](@ref) is that there is no assumption 
+    that `|a| ≥ |b|`.
+"""
 @inline function Two_Diff(a, b)
     x = a - b
     y = Two_Diff_Tail(a, b, x)
     return x, y
 end
 
+"""
+    Split(a) -> NTuple{2, Float}
+
+Given `a`, returns `(aₗₒ, aₕᵢ)` such that `a = aₕᵢ + aₗₒ` and 
+- `aₕᵢ` and `aₗₒ` are `p - s` and `s - 1` bit values, respectively,
+    where `p = 53` for Float64 values (more generally, `p = precision(T)`
+    where `T` is your float type) and `s = ceil(Int, p/2)`.
+- `|aₕᵢ| ≥ |aₗₒ|`.
+- `aₕᵢ` and `aₗₒ` are nonoverlapping.
+"""
 @inline function Split(a)
     c = splitter * a
     abig = c - a
@@ -64,6 +142,12 @@ end
     return ahi, alo
 end
 
+"""
+    Two_Product_Tail(a, b, x) -> Float
+
+Given `x = a ⊗ b`, returns the roundoff error `y` 
+in computing `x` such that `ab = x + y`. 
+"""
 @inline function Two_Product_Tail(a, b, x)
     ahi, alo = Split(a)
     bhi, blo = Split(b)
@@ -74,12 +158,27 @@ end
     return y
 end
 
+"""
+    Two_Product(a, b) -> NTuple{2, Float}
+
+Computes `(x, y)` such that `x = a ⊗ b` and `y` 
+is the roundoff error in computing `x` so that 
+`ab = x + y`.
+"""
 @inline function Two_Product(a, b)
     x = a * b
     y = Two_Product_Tail(a, b, x)
     return x, y
 end
 
+"""
+    Two_Product_Presplit(a, b, bhi, blo) -> NTuple{2, Float}
+
+Given `a, b` and a pair `(bhi, blo)` from [`Split(b)`](@ref Split),
+returns `(x, y)` such that `x = a ⊗ b` and `y` is the roundoff error 
+in computing `x` so that `ab = x + y`. Note that this is simply [`Two_Product`](@ref)
+except with `b` already split.
+"""
 @inline function Two_Product_Presplit(a, b, bhi, blo)
     x = a * b
     ahi, alo = Split(a)
@@ -90,6 +189,14 @@ end
     return x, y
 end
 
+"""
+    Two_Product_2Presplit(a, ahi, alo, b, bhi, blo) -> NTuple{2, Float}
+
+Given `a, b` and pairs `(ahi, alo)` and `(bhi, blo)` from [`Split(a)`](@ref Split)
+and [`Split(b)`](@ref Split), respectively, returns `(x, y)` such that `x = a ⊗ b`
+and `y` is the roundoff error in computing `x` so that `ab = x + y`. Note that this is simply 
+[`Two_Product`](@ref) except with `a` and `b` already split.
+"""
 @inline function Two_Product_2Presplit(a, ahi, alo, b, bhi, blo)
     x = a * b
     err1 = x - (ahi * bhi)
@@ -99,6 +206,12 @@ end
     return x, y
 end
 
+"""
+    Square_Tail(a, x) -> Float
+
+Given `x = a ⊗ a`, returns the roundoff error in computing `x` such 
+that `a^2 = x + y`.
+"""
 @inline function Square_Tail(a, x)
     ahi, alo = Split(a)
     err1 = x - (ahi * ahi)
@@ -107,6 +220,12 @@ end
     return y
 end
 
+"""
+    Square(a) -> NTuple{2, Float}
+
+Returns `(x, y)`, where `x = a ⊗ a` and `y` is the roundoff error in computing 
+`x` such that `a^2 = x + y`.
+"""
 @inline function Square(a)
     x = a * a
     y = Square_Tail(a, x)
