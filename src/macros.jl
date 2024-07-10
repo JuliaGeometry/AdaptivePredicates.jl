@@ -4,7 +4,7 @@
 Computes `abs(a)`.
 """
 @inline function Absolute(a)
-    return abs(a) 
+    return abs(a)
     # Originally a ≥ 0 ? a : -a, but the original code only did that 
     # because bit masking is difficult in C.
 end

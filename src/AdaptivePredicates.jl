@@ -18,21 +18,21 @@ function find_epsilon()
     # /*   rounding.  Not that this library will work on such machines anyway. */
     cond = true
     while cond
-      lastcheck = check
-      epsilon *= half
-      if (every_other)
-        splitter *= 2.0
-      end
-      every_other = !every_other
-      check = 1.0 + epsilon
-      cond = ((check != 1.0) && (check != lastcheck))
+        lastcheck = check
+        epsilon *= half
+        if (every_other)
+            splitter *= 2.0
+        end
+        every_other = !every_other
+        check = 1.0 + epsilon
+        cond = ((check != 1.0) && (check != lastcheck))
     end
     splitter += 1.0
     return epsilon, splitter
 end
 
 const epsilon, splitter = find_epsilon()
-@assert epsilon == eps(1.0) / 2 
+@assert epsilon == eps(1.0) / 2
 const resulterrbound = (3.0 + 8.0 * epsilon) * epsilon
 const ccwerrboundA = (3.0 + 16.0 * epsilon) * epsilon
 const ccwerrboundB = (2.0 + 12.0 * epsilon) * epsilon
