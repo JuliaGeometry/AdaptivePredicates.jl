@@ -12,6 +12,13 @@ range $[-142, 201]$. In particular:
 
 If you need predicates outside of this range, ExactPredicates.jl might be preferable.
 
+The package is still in development and is not registered. If you want to use the package, you can do
+```julia
+using Pkg
+Pkg.add("https://github.com/JuliaGeometry/AdaptivePredicates.jl")
+using AdaptivePredicates
+```
+
 ## License
 The original code is in the public domain and this Julia port is under the MIT License
 
