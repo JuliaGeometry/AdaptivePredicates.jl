@@ -12,7 +12,6 @@ to functions. main() runs the tests.
 #include <time.h>
 #endif
 
-
 #define REAL double
 #define INEXACT
 #define NUM_TESTS 100
@@ -329,7 +328,7 @@ REAL _Absolute(REAL a)
   return Absolute(a);
 }
 
-const char *TestAbsolute()
+int TestAbsolute()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -340,7 +339,7 @@ const char *TestAbsolute()
     int test = lhs == rhs;
     CheckTest(test, fail);
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -357,7 +356,7 @@ REAL _Fast_Two_Sum_Tail(REAL a, REAL b, REAL x)
   return y;
 }
 
-const char *TestFastTwoSumTail()
+int TestFastTwoSumTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -369,7 +368,7 @@ const char *TestFastTwoSumTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -388,7 +387,7 @@ RealTuple2 _Fast_Two_Sum(REAL a, REAL b)
   return result;
 };
 
-const char *TestFastTwoSum()
+int TestFastTwoSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -401,7 +400,7 @@ const char *TestFastTwoSum()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -418,7 +417,7 @@ REAL _Fast_Two_Diff_Tail(REAL a, REAL b, REAL x)
   return y;
 }
 
-const char *TestFastTwoDiffTail()
+int TestFastTwoDiffTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -430,7 +429,7 @@ const char *TestFastTwoDiffTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -448,7 +447,7 @@ RealTuple2 _Fast_Two_Diff(REAL a, REAL b)
   return result;
 }
 
-const char *TestFastTwoDiff()
+int TestFastTwoDiff()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -461,7 +460,7 @@ const char *TestFastTwoDiff()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -481,7 +480,7 @@ REAL _Two_Sum_Tail(REAL a, REAL b, REAL x)
   return y;
 }
 
-const char *TestTwoSumTail()
+int TestTwoSumTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -493,7 +492,7 @@ const char *TestTwoSumTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -511,7 +510,7 @@ RealTuple2 _Two_Sum(REAL a, REAL b)
   return result;
 }
 
-const char *TestTwoSum()
+int TestTwoSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -524,7 +523,7 @@ const char *TestTwoSum()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -544,7 +543,7 @@ REAL _Two_Diff_Tail(REAL a, REAL b, REAL x)
   return y;
 }
 
-const char *TestTwoDiffTail()
+int TestTwoDiffTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -556,7 +555,7 @@ const char *TestTwoDiffTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -575,7 +574,7 @@ RealTuple2 _Two_Diff(REAL a, REAL b)
   return result;
 }
 
-const char *TestTwoDiff()
+int TestTwoDiff()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -588,7 +587,7 @@ const char *TestTwoDiff()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -608,7 +607,7 @@ RealTuple2 _Split(REAL a)
   return result;
 }
 
-const char *TestSplit()
+int TestSplit()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -621,7 +620,7 @@ const char *TestSplit()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -642,7 +641,7 @@ REAL _Two_Product_Tail(REAL a, REAL b, REAL x)
   return y;
 }
 
-const char *TestTwoProductTail()
+int TestTwoProductTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -654,7 +653,7 @@ const char *TestTwoProductTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -672,7 +671,7 @@ RealTuple2 _Two_Product(REAL a, REAL b)
   return result;
 }
 
-const char *TestTwoProduct()
+int TestTwoProduct()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -685,7 +684,7 @@ const char *TestTwoProduct()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -707,7 +706,7 @@ RealTuple2 _Two_Product_Presplit(REAL a, REAL b, REAL bhi, REAL blo)
   return result;
 }
 
-const char *TestTwoProductPresplit()
+int TestTwoProductPresplit()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -720,7 +719,7 @@ const char *TestTwoProductPresplit()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -741,7 +740,7 @@ RealTuple2 _Two_Product_2Presplit(REAL a, REAL ahi, REAL alo, REAL b, REAL bhi, 
   return result;
 }
 
-const char *TestTwoProduct2Presplit()
+int TestTwoProduct2Presplit()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -754,7 +753,7 @@ const char *TestTwoProduct2Presplit()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -773,7 +772,7 @@ REAL _Square_Tail(REAL a, REAL x)
   return y;
 }
 
-const char *TestSquareTail()
+int TestSquareTail()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -785,7 +784,7 @@ const char *TestSquareTail()
     int test = lhs == rhs;
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -803,7 +802,7 @@ RealTuple2 _Square(REAL a)
   return result;
 }
 
-const char *TestSquare()
+int TestSquare()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -816,7 +815,7 @@ const char *TestSquare()
     int test = CompareTuples2(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -832,7 +831,7 @@ RealTuple3 _Two_One_Sum(REAL a1, REAL a0, REAL b)
   return result;
 }
 
-const char *TestTwoOneSum()
+int TestTwoOneSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -845,7 +844,7 @@ const char *TestTwoOneSum()
     int test = CompareTuples3(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -863,7 +862,7 @@ RealTuple3 _Two_One_Diff(REAL a1, REAL a0, REAL b)
   return result;
 }
 
-const char *TestTwoOneDiff()
+int TestTwoOneDiff()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -876,7 +875,7 @@ const char *TestTwoOneDiff()
     int test = CompareTuples3(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -894,7 +893,7 @@ RealTuple4 _Two_Two_Sum(REAL a1, REAL a0, REAL b1, REAL b0)
   return result;
 }
 
-const char *TestTwoTwoSum()
+int TestTwoTwoSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -907,7 +906,7 @@ const char *TestTwoTwoSum()
     int test = CompareTuples4(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -925,7 +924,7 @@ RealTuple4 _Two_Two_Diff(REAL a1, REAL a0, REAL b1, REAL b0)
   return result;
 }
 
-const char *TestTwoTwoDiff()
+int TestTwoTwoDiff()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -938,7 +937,7 @@ const char *TestTwoTwoDiff()
     int test = CompareTuples4(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -956,7 +955,7 @@ RealTuple5 _Four_One_Sum(REAL a3, REAL a2, REAL a1, REAL a0, REAL b)
   return result;
 }
 
-const char *TestFourOneSum()
+int TestFourOneSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -969,7 +968,7 @@ const char *TestFourOneSum()
     int test = CompareTuples5(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -987,7 +986,7 @@ RealTuple6 _Four_Two_Sum(REAL a3, REAL a2, REAL a1, REAL a0, REAL b1, REAL b0)
   return result;
 }
 
-const char *TestFourTwoSum()
+int TestFourTwoSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1000,7 +999,7 @@ const char *TestFourTwoSum()
     int test = CompareTuples6(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1019,7 +1018,7 @@ RealTuple8 _Four_Four_Sum(REAL a3, REAL a2, REAL a1, REAL a0, REAL b4, REAL b3, 
   return result;
 }
 
-const char *TestFourFourSum()
+int TestFourFourSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1032,7 +1031,7 @@ const char *TestFourFourSum()
     int test = CompareTuples8(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1051,7 +1050,7 @@ RealTuple9 _Eight_One_Sum(REAL a7, REAL a6, REAL a5, REAL a4, REAL a3, REAL a2, 
   return result;
 }
 
-const char *TestEightOneSum()
+int TestEightOneSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1064,7 +1063,7 @@ const char *TestEightOneSum()
     int test = CompareTuples9(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1085,7 +1084,7 @@ RealTuple10 _Eight_Two_Sum(REAL a7, REAL a6, REAL a5, REAL a4, REAL a3, REAL a2,
   return result;
 }
 
-const char *TestEightTwoSum()
+int TestEightTwoSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1098,7 +1097,7 @@ const char *TestEightTwoSum()
     int test = CompareTuples10(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1119,7 +1118,7 @@ RealTuple12 _Eight_Four_Sum(REAL a7, REAL a6, REAL a5, REAL a4, REAL a3, REAL a2
   return result;
 }
 
-const char *TestEightFourSum()
+int TestEightFourSum()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1132,7 +1131,7 @@ const char *TestEightFourSum()
     int test = CompareTuples12(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1153,7 +1152,7 @@ RealTuple4 _Two_One_Product(REAL a1, REAL a0, REAL b)
   return result;
 }
 
-const char *TestTwoOneProduct()
+int TestTwoOneProduct()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1166,7 +1165,7 @@ const char *TestTwoOneProduct()
     int test = CompareTuples4(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1193,7 +1192,7 @@ RealTuple8 _Four_One_Product(REAL a3, REAL a2, REAL a1, REAL a0, REAL b)
   return result;
 }
 
-const char *TestFourOneProduct()
+int TestFourOneProduct()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1206,7 +1205,7 @@ const char *TestFourOneProduct()
     int test = CompareTuples8(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1246,7 +1245,7 @@ RealTuple8 _Two_Two_Product(REAL a1, REAL a0, REAL b1, REAL b0)
   return result;
 }
 
-const char *TestTwoTwoProduct()
+int TestTwoTwoProduct()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1259,7 +1258,7 @@ const char *TestTwoTwoProduct()
     int test = CompareTuples8(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1281,7 +1280,7 @@ RealTuple6 _Two_Square(REAL a1, REAL a0)
   return result;
 }
 
-const char *TestTwoSquare()
+int TestTwoSquare()
 {
   int fail = 0;
   for (int i = 0; i < NUM_TESTS; ++i)
@@ -1294,7 +1293,7 @@ const char *TestTwoSquare()
     int test = CompareTuples6(lhs, rhs);
     CheckTest(test, fail)
   }
-  return BoolString(fail);
+  return fail;
 }
 
 /**********************************************/
@@ -1306,66 +1305,72 @@ int main()
   exactinit();
 
   srand((unsigned int)time(NULL));
-  const char *absTest = TestAbsolute();
-  const char *ftstTest = TestFastTwoSumTail();
-  const char *ftsTest = TestFastTwoSum();
-  const char *ftdtTest = TestFastTwoDiffTail();
-  const char *ftdTest = TestFastTwoDiff();
-  const char *tstTest = TestTwoSumTail();
-  const char *tsTest = TestTwoSum();
-  const char *tdtTest = TestTwoDiffTail();
-  const char *tdTest = TestTwoDiff();
-  const char *sTest = TestSplit();
-  const char *tptTest = TestTwoProductTail();
-  const char *tpTest = TestTwoProduct();
-  const char *tppsTest = TestTwoProductPresplit();
-  const char *tp2psTest = TestTwoProduct2Presplit();
-  const char *_tstTest = TestSquareTail();
-  const char *_sTest = TestSquare();
-  const char *tosTest = TestTwoOneSum();
-  const char *todTest = TestTwoOneDiff();
-  const char *ttsTest = TestTwoTwoSum();
-  const char *ttdTest = TestTwoTwoDiff();
-  const char *fosTest = TestFourOneSum();
-  const char *_ftsTest = TestFourTwoSum();
-  const char *ffsTest = TestFourFourSum();
-  const char *eosTest = TestEightOneSum();
-  const char *etsTest = TestEightTwoSum();
-  const char *efsTest = TestEightFourSum();
-  const char *topTest = TestTwoOneProduct();
-  const char *fopTest = TestFourOneProduct();
-  const char *ttpTest = TestTwoTwoProduct();
-  const char *_tsTest = TestTwoSquare();
+  int absTest = TestAbsolute();
+  int ftstTest = TestFastTwoSumTail();
+  int ftsTest = TestFastTwoSum();
+  int ftdtTest = TestFastTwoDiffTail();
+  int ftdTest = TestFastTwoDiff();
+  int tstTest = TestTwoSumTail();
+  int tsTest = TestTwoSum();
+  int tdtTest = TestTwoDiffTail();
+  int tdTest = TestTwoDiff();
+  int sTest = TestSplit();
+  int tptTest = TestTwoProductTail();
+  int tpTest = TestTwoProduct();
+  int tppsTest = TestTwoProductPresplit();
+  int tp2psTest = TestTwoProduct2Presplit();
+  int _tstTest = TestSquareTail();
+  int _sTest = TestSquare();
+  int tosTest = TestTwoOneSum();
+  int todTest = TestTwoOneDiff();
+  int ttsTest = TestTwoTwoSum();
+  int ttdTest = TestTwoTwoDiff();
+  int fosTest = TestFourOneSum();
+  int _ftsTest = TestFourTwoSum();
+  int ffsTest = TestFourFourSum();
+  int eosTest = TestEightOneSum();
+  int etsTest = TestEightTwoSum();
+  int efsTest = TestEightFourSum();
+  int topTest = TestTwoOneProduct();
+  int fopTest = TestFourOneProduct();
+  int ttpTest = TestTwoTwoProduct();
+  int _tsTest = TestTwoSquare();
+  int nfail = absTest + ftstTest + ftsTest + ftdtTest + ftdTest +
+              tstTest + tsTest + tdtTest + tdTest + sTest + tptTest +
+              tpTest + tppsTest + tp2psTest + _tstTest + _sTest +
+              tosTest + todTest + ttsTest + ttdTest + fosTest +
+              _ftsTest + ffsTest + eosTest + etsTest + efsTest +
+              topTest + fopTest + ttpTest + _tsTest;
 
-  printf("TestAbsolute: %s\n", absTest);
-  printf("TestFastTwoSumTail: %s\n", ftstTest);
-  printf("TestFastTwoSum: %s\n", ftsTest);
-  printf("TestFastTwoDiffTail: %s\n", ftdtTest);
-  printf("TestFastTwoDiff: %s\n", ftdTest);
-  printf("TestTwoSumTail: %s\n", tstTest);
-  printf("TestTwoSum: %s\n", tsTest);
-  printf("TestTwoDiffTail: %s\n", tdtTest);
-  printf("TestTwoDiff: %s\n", tdTest);
-  printf("TestSplit: %s\n", sTest);
-  printf("TestTwoProductTail: %s\n", tptTest);
-  printf("TestTwoProduct: %s\n", tpTest);
-  printf("TestTwoProductPresplit: %s\n", tppsTest);
-  printf("TestTwoProduct2Presplit: %s\n", tp2psTest);
-  printf("TestSquareTail: %s\n", _tstTest);
-  printf("TestSquare: %s\n", _sTest);
-  printf("TestTwoOneSum: %s\n", tosTest);
-  printf("TestTwoOneDiff: %s\n", todTest);
-  printf("TestTwoTwoSum: %s\n", ttsTest);
-  printf("TestTwoTwoDiff: %s\n", ttdTest);
-  printf("TestFourOneSum: %s\n", fosTest);
-  printf("TestFourTwoSum: %s\n", _ftsTest);
-  printf("TestFourFourSum: %s\n", ffsTest);
-  printf("TestEightOneSum: %s\n", eosTest);
-  printf("TestEightTwoSum: %s\n", etsTest);
-  printf("TestEightFourSum: %s\n", efsTest);
-  printf("TestTwoOneProduct: %s\n", topTest);
-  printf("TestFourOneProduct: %s\n", fopTest);
-  printf("TestTwoTwoProduct: %s\n", ttpTest);
-  printf("TestTwoSquare: %s\n", _tsTest);
-  return 0.0;
+  printf("TestAbsolute: %s\n", BoolString(absTest));
+  printf("TestFastTwoSumTail: %s\n", BoolString(ftstTest));
+  printf("TestFastTwoSum: %s\n", BoolString(ftsTest));
+  printf("TestFastTwoDiffTail: %s\n", BoolString(ftdtTest));
+  printf("TestFastTwoDiff: %s\n", BoolString(ftdTest));
+  printf("TestTwoSumTail: %s\n", BoolString(tstTest));
+  printf("TestTwoSum: %s\n", BoolString(tsTest));
+  printf("TestTwoDiffTail: %s\n", BoolString(tdtTest));
+  printf("TestTwoDiff: %s\n", BoolString(tdTest));
+  printf("TestSplit: %s\n", BoolString(sTest));
+  printf("TestTwoProductTail: %s\n", BoolString(tptTest));
+  printf("TestTwoProduct: %s\n", BoolString(tpTest));
+  printf("TestTwoProductPresplit: %s\n", BoolString(tppsTest));
+  printf("TestTwoProduct2Presplit: %s\n", BoolString(tp2psTest));
+  printf("TestSquareTail: %s\n", BoolString(_tstTest));
+  printf("TestSquare: %s\n", BoolString(_sTest));
+  printf("TestTwoOneSum: %s\n", BoolString(tosTest));
+  printf("TestTwoOneDiff: %s\n", BoolString(todTest));
+  printf("TestTwoTwoSum: %s\n", BoolString(ttsTest));
+  printf("TestTwoTwoDiff: %s\n", BoolString(ttdTest));
+  printf("TestFourOneSum: %s\n", BoolString(fosTest));
+  printf("TestFourTwoSum: %s\n", BoolString(_ftsTest));
+  printf("TestFourFourSum: %s\n", BoolString(ffsTest));
+  printf("TestEightOneSum: %s\n", BoolString(eosTest));
+  printf("TestEightTwoSum: %s\n", BoolString(etsTest));
+  printf("TestEightFourSum: %s\n", BoolString(efsTest));
+  printf("TestTwoOneProduct: %s\n", BoolString(topTest));
+  printf("TestFourOneProduct: %s\n", BoolString(fopTest));
+  printf("TestTwoTwoProduct: %s\n", BoolString(ttpTest));
+  printf("TestTwoSquare: %s\n", BoolString(_tsTest));
+  return nfail;
 }

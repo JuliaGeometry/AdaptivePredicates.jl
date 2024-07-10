@@ -27,7 +27,8 @@ cd("original") do
 
     ## Run the macro conversion tests 
     run(`gcc -o macro_tests macro_defs.c`)
-    run(`./macro_tests`)
+    proc = run(ignorestatus(`./macro_tests`))
+    @test success(proc)
     rm("./macro_tests" * (Sys.iswindows() ? ".exe" : ""))
 end
 
