@@ -99,8 +99,8 @@ end
 
 # The next two should agree
 check_range(x) = iszero(x) || exponent(abs(x)) ∈ -142:201   # Shewchuk's predicates are only guaranteed to be accurate for floats with binary 
-                                                            # exponents in the range [-142, 201]. See Section 2.1 in the paper 
-                                                            # Richard Shewchuk, J. Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates. Discrete Comput Geom 18(3), 305–363 (1997)
+# exponents in the range [-142, 201]. See Section 2.1 in the paper 
+# Richard Shewchuk, J. Adaptive Precision Floating-Point Arithmetic and Fast Robust Geometric Predicates. Discrete Comput Geom 18(3), 305–363 (1997)
 @check function orient_against_exact(a=complexgen2, b=complexgen2, c=complexgen2)
     assume!(all(check_range, (a.re, a.im, b.re, b.im, c.re, c.im)))
     dir = orient(a, b, c)
