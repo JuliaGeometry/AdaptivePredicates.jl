@@ -28,7 +28,7 @@ cd("original") do
     ## Run the macro conversion tests 
     run(`gcc -o macro_tests macro_defs.c`)
     run(`./macro_tests`)
-    rm("macro_tests.exe")
+    rm("./macro_tests.exe")
 end
 
 include("original/CPredicates.jl")
