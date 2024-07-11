@@ -219,5 +219,9 @@ end
         a3, a2, a1, a0 = _rand(4)
         @test AdaptivePredicates.Two_Two_Product(a3, a2, a1, a0) ==
               @ccall libpredicates._Two_Two_Product(a3::F64, a2::F64, a1::F64, a0::F64)::NTuple{8,Cdouble}
+
+        a1, a0 = _rand(2)
+        @test AdaptivePredicates.Two_Square(a1, a0) ==
+              @ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}
     end
 end

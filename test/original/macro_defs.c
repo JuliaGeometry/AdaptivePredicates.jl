@@ -1265,16 +1265,16 @@ int TestTwoTwoProduct()
 
 /**********************************************/
 #define Two_Square(a1, a0, x5, x4, x3, x2, x1, x0) \
-  Square(a0, _j, x0);                              \
-  _0 = a0 + a0;                                    \
-  Two_Product(a1, _0, _k, _1);                     \
-  Two_One_Sum(_k, _1, _j, _l, _2, x1);             \
-  Square(a1, _j, _1);                              \
-  Two_Two_Sum(_j, _1, _l, _2, x5, x4, x3, x2)
+  Square(a0, _1, x0);                              \
+  _2 = a0 + a0;                                    \
+  Two_Product(a1, _2, _3, _4);                     \
+  Two_One_Sum(_3, _4, _1, _5, _6, x1);             \
+  Square(a1, _7, _8);                              \
+  Two_Two_Sum(_7, _8, _5, _6, x5, x4, x3, x2);
 
 RealTuple6 _Two_Square(REAL a1, REAL a0)
 {
-  REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
+  REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, _3, _4, _5, _6, _7, _8, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
   Two_Square(a1, a0, x5, x4, x3, x2, x1, x0);
   RealTuple6 result = {x5, x4, x3, x2, x1, x0};
   return result;
@@ -1287,7 +1287,7 @@ int TestTwoSquare()
   {
     rand2(L, R);
     RealTuple6 lhs = _Two_Square(aa, bb);
-    REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
+    REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, _3, _4, _5, _6, _7, _8, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
     Two_Square(aa, bb, x5, x4, x3, x2, x1, x0);
     RealTuple6 rhs = {x5, x4, x3, x2, x1, x0};
     int test = CompareTuples6(lhs, rhs);

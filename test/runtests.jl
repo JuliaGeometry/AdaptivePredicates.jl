@@ -8,11 +8,13 @@ cd("original") do
         pred = read("predicates.c", String)
         if Sys.iswindows()
             # random(), being a POSIX function, is not available on Windows. We need to use rand().
-            new_pred = replace(pred, "random()" => "rand()")
+            new_pred = replace(pred, "random()" => "rand()", "#define Two_Square" => "#define Old_Two_Square")
             write("_predicates.c", new_pred)
         else
+            new_pred = replace(pred, "#define Two_Square" => "#define Old_Two_Square")
             write("_predicates.c", pred)
         end
+        
         ## Append function definitions of the macros to pred_path, allowing for them to be 
         ## @ccalled for the purpose of testing 
         open("_predicates.c", "a") do io
