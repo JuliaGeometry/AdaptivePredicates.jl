@@ -343,3 +343,13 @@ end
     x7, x6 = Two_Sum(_m, _k)
     return x7, x6, x5, x4, x3, x2, x1, x0
 end
+
+function Two_Square(a1, a0)
+    _j, x0 = Square(a0)
+    _0 = a0 + a0
+    _k, _1 = Two_Product(a1, _0)
+    _l, _2, x1 = Two_One_Sum(_k, _1, _j)
+    _j, _1 = Square(a1)
+    x5, x4, x3, x2 = Two_Two_Sum(_j, _1, _l, _2)
+    return x5, x4, x3, x2, x1, x0
+end

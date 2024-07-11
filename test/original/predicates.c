@@ -351,12 +351,12 @@
 /*   guaranteed to have no more than six (rather than eight) components.     */
 
 #define Two_Square(a1, a0, x5, x4, x3, x2, x1, x0) \
-  Square(a0, _j, x0); \
-  _0 = a0 + a0; \
-  Two_Product(a1, _0, _k, _1); \
-  Two_One_Sum(_k, _1, _j, _l, _2, x1); \
-  Square(a1, _j, _1); \
-  Two_Two_Sum(_j, _1, _l, _2, x5, x4, x3, x2)
+  Square(a0, _1, x0); \
+  _2 = a0 + a0; \
+  Two_Product(a1, _2, _3, _4); \
+  Two_One_Sum(_3, _4, _1, _5, _6, x1); \
+  Square(a1, _7, _8); \
+  Two_Two_Sum(_7, _8, _5, _6, x5, x4, x3, x2);
 
 REAL splitter;     /* = 2^ceiling(p / 2) + 1.  Used to split floats in half. */
 REAL epsilon;                /* = 2^(-p).  Used to estimate roundoff errors. */

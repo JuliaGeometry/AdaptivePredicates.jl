@@ -56,6 +56,8 @@ function orient_exact(a, b, c)
 end
 end
 
+using AdaptivePredicates, Test
+
 using .CPredicates: libpredicates
 _epsilon,
 _splitter,
@@ -219,5 +221,212 @@ end
         a3, a2, a1, a0 = _rand(4)
         @test AdaptivePredicates.Two_Two_Product(a3, a2, a1, a0) ==
               @ccall libpredicates._Two_Two_Product(a3::F64, a2::F64, a1::F64, a0::F64)::NTuple{8,Cdouble}
+
+        a1, a0 = _rand(2)
+        @test AdaptivePredicates.Two_Square(a1, a0) ==
+              @ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}
     end
 end
+
+a1, a0 = _rand(2)
+_j, x0 = AdaptivePredicates.Square(a0)
+@test (_j, x0) == @ccall libpredicates._Square(a0::F64)::NTuple{2,Cdouble}
+_0 = a0 + a0
+@test _0 == @ccall libpredicates._plus(a0::F64, a0::F64)::Cdouble
+_k, _1 = AdaptivePredicates.Two_Product(a1, _0)
+@test (_k, _1) == @ccall libpredicates._Two_Product(a1::F64, _0::F64)::NTuple{2,Cdouble}
+_l, _2, x1 = AdaptivePredicates.Two_One_Sum(_k, _1, _j)
+@test (_l, _2, x1) == @ccall libpredicates._Two_One_Sum(_k::F64, _1::F64, _j::F64)::NTuple{3,Cdouble}
+_j, _1 = AdaptivePredicates.Square(a1)
+@test (_j, _1) == @ccall libpredicates._Square(a1::F64)::NTuple{2,F64}
+x5, x4, x3, x2 = AdaptivePredicates.Two_Two_Sum(_j, _1, _l, _2)
+@test (x5,x4,x3,x2) == @ccall libpredicates._Two_Two_Sum(_j::F64,_1::F64,_l::F64,_2::F64)::NTuple{4,Cdouble}
+@test (x5, x4,x3,x2,x1,x0) == @ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}
+_x5,_x4,_x3,_x2,_x1,_x0 = @ccall libpredicates._Two_Square(a1::F64, a0::F64)::NTuple{6,Cdouble}
+x5 - _x5 
+x4 - _x4 
+x3 - _x3 
+x2 - _x2 
+
+function grow_expansion(e, b, h)
+    # Changes: Removed elen which is just length(e)
+    #          eindex is removed, we just iterate over the values of e
+    #          The returned eindex+1 is now just length(h)
+    #          h[eindex] is now h[end]
+    Q = b
+    for (eindex, enow) in pairs(e)
+        Qnew, h[eindex] = AdaptivePredicates.Two_Sum(Q, enow)
+        Q = Qnew
+    end
+    h[end] = Q
+    return length(h)
+end
+function _grow_expansion(e, b)
+    h = zeros(length(e) + 1)
+    elen = length(e)
+    eindex = @ccall libpredicates.grow_expansion(elen::Int, e::Ptr{Float64}, b::Float64, h::Ptr{Float64})::Int
+    return h, eindex
+end
+for _ in 1:1000
+    e = _rand(rand(1:10))
+    b = _rand()
+    h = zeros(length(e) + 1)
+    eindex = grow_expansion(e, b, h)
+    _h, _eindex = _grow_expansion(e, b)
+    @test h == _h && eindex == _eindex
+end
+
+function grow_expansion_zeroelim(e, b, h)
+    # Changes: Removed elen 
+    #          Just iterate over e instead of needing eindex  
+    #          Qnew is now just Q
+    hindex = 0
+    Q = b
+    for enow in e
+        Q, hh = AdaptivePredicates.Two_Sum(Q, enow)
+        if hh != 0
+            hindex += 1
+            h[hindex] = hh
+        end
+    end
+    if Q != 0 || hindex == 1
+        hindex += 1
+        h[hindex] = Q
+    end
+    return hindex # hindex is now important since we need it to determine the nonzero components (length(h) != hindex)
+end
+function _grow_expansion_zeroelim(e, b)
+    elen = length(e)
+    h = zeros(length(e) + 1)
+    eindex = @ccall libpredicates.grow_expansion_zeroelim(elen::Int, e::Ptr{Float64}, b::Float64, h::Ptr{Float64})::Int
+    return h, eindex
+end
+for _ in 1:1000
+    e = rand(rand(1:10))
+    b = rand()
+    h = zeros(length(e) + 1)
+    elen = length(e)
+    eindex = grow_expansion_zeroelim(e, b, h)
+    _h, _eindex = _grow_expansion_zeroelim(e, b)
+    @test h == _h && eindex == _eindex
+end
+
+function expansion_sum(e, f, h)
+    Q = f[1]
+    for (hindex, hnow) in pairs(e) # changed here
+        Q, h[hindex] = AdaptivePredicates.Two_Sum(Q, hnow)
+    end
+    hindex = length(e) + 1
+    h[hindex] = Q
+    hlast = hindex
+    for findex in (firstindex(f)+1):lastindex(f)
+        Q = f[findex]
+        for hindex in findex:hlast # changed here 
+            Q, h[hindex] = AdaptivePredicates.Two_Sum(Q, h[hindex])
+        end
+        hlast += 1
+        h[hlast] = Q
+    end
+    return length(h) # changed here
+end
+function _expansion_sum(e, f)
+    h = zeros(length(e) + length(f))
+    hlast = @ccall libpredicates.expansion_sum(length(e)::Int, e::Ptr{Float64}, length(f)::Int, f::Ptr{Float64}, h::Ptr{Float64})::Int
+    return h, hlast
+end
+for _ in 1:1000
+    e = rand(rand(3:10))
+    f = rand(rand(2:10))
+    h = zeros(length(e) + length(f))
+    hlast = expansion_sum(e, f, h)
+    _h, _hlast = _expansion_sum(e, f)
+    @test h == _h && hlast == _hlast
+end
+
+function expansion_sum_zeroelim1(e, f, h)
+    Q = f[1]
+    for (hindex, hnow) in pairs(e)
+        Q, h[hindex] = AdaptivePredicates.Two_Sum(Q, hnow) # changed here
+    end
+    hindex = length(e) + 1 # changed here
+    h[hindex] = Q
+    hlast = hindex
+    for findex in (firstindex(f)+1):lastindex(f) # changed here
+        Q = f[findex]
+        for hindex in findex:hlast # changed here
+            Q, h[hindex] = AdaptivePredicates.Two_Sum(Q, h[hindex])
+        end
+        hlast += 1
+        h[hlast] = Q
+    end
+    hindex = 0
+    for index in 1:hlast
+        hnow = h[index]
+        if hnow != 0.0
+            hindex += 1
+            h[hindex] = hnow
+        end
+    end
+    if hindex == 0
+        return 1
+    else
+        return hindex
+    end
+end
+function _expansion_sum_zeroelim1(e, f)
+    h = zeros(length(e) + length(f))
+    hlast = @ccall libpredicates.expansion_sum_zeroelim1(length(e)::Int, e::Ptr{Float64}, length(f)::Int, f::Ptr{Float64}, h::Ptr{Float64})::Int
+    return h, hlast
+end
+for _ in 1:1000
+    e = rand(rand(3:100))
+    f = rand(rand(2:100))
+    h = zeros(length(e) + length(f))
+    hlast = expansion_sum_zeroelim1(e, f, h)
+    _h, _hlast = _expansion_sum_zeroelim1(e, f)
+    @test h == _h && hlast == _hlast
+end
+
+function expansion_sum_zeroelim2(e, f, h)
+    Q = f[1]
+    hindex = 1
+    for enow in e
+        Q, hh = AdaptivePredicates.Two_Sum(Q, enow)
+        if hh != 0.0
+            h[hindex] = hh
+            hindex += 1
+        end
+    end
+    h[hindex] = Q
+    hlast = hindex
+    for findex in (firstindex(f)+1):lastindex(f)
+        hindex = 1
+        Q = f[findex]
+        for eindex in 1:hlast
+            enow = h[eindex]
+            Q, hh = AdaptivePredicates.Two_Sum(Q, enow)
+            if hh != 0.0
+                h[hindex] = hh
+                hindex += 1
+            end
+        end
+        h[hindex] = Q
+        hlast = hindex
+    end
+    return hlast
+end
+function _expansion_sum_zeroelim2(e, f)
+    h = zeros(length(e) + length(f))
+    hlast = @ccall libpredicates.expansion_sum_zeroelim2(length(e)::Int, e::Ptr{Float64}, length(f)::Int, f::Ptr{Float64}, h::Ptr{Float64})::Int
+    return h, hlast
+end
+for _ in 1:1000
+    e = rand(rand(3:100))
+    f = rand(rand(2:100))
+    h = zeros(length(e) + length(f))
+    hlast = expansion_sum_zeroelim2(e, f, h)
+    _h, _hlast = _expansion_sum_zeroelim2(e, f)
+    @test h == _h && hlast == _hlast
+end
+
+

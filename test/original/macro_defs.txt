@@ -350,7 +350,7 @@ RealTuple8 _Two_Two_Product(REAL a1, REAL a0, REAL b1, REAL b0)
 
 RealTuple6 _Two_Square(REAL a1, REAL a0)
 {
-  REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
+  REAL x5, x4, x3, x2, x1, x0, _i, _j, _0, _1, _2, _3, _4, _5, _6, _7, _8, c, abig, ahi, alo, err1, err2, err3, avirt, bvirt, around, bround, _k, bhi, blo, _l;
   Two_Square(a1, a0, x5, x4, x3, x2, x1, x0);
   RealTuple6 result = {x5, x4, x3, x2, x1, x0};
   return result;
