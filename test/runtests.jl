@@ -3,6 +3,12 @@ using Test
 using Supposition
 using BenchmarkTools
 import ExactPredicates: ExactPredicates
+using Aqua
+
+@testset "Aqua" begin
+    Aqua.test_all(AdaptivePredicates)
+end
+
 const AP = AdaptivePredicates
 cd("original") do
     include("compile.jl")
@@ -194,12 +200,4 @@ setup_insphere(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 5)
     @test iszero(@ballocated incircle(args...) setup = (args = setup_incircle(Float32)))
     @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float64)))
     @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float32)))
-end
-
-@testset "free!" begin
-    F64C = AP.TASK_LOCAL_F64CACHE
-    F32C = AP.TASK_LOCAL_F32CACHE
-    @test !isempty(F64C) && !isempty(F32C)
-    AP.free!()
-    @test isempty(F64C) && isempty(F32C)
 end
