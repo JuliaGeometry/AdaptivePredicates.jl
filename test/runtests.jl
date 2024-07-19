@@ -3,6 +3,12 @@ using Test
 using Supposition
 using BenchmarkTools
 import ExactPredicates: ExactPredicates
+using Aqua
+
+@testset "Aqua" begin
+    Aqua.test_all(AdaptivePredicates)
+end
+
 const AP = AdaptivePredicates
 cd("original") do
     include("compile.jl")
