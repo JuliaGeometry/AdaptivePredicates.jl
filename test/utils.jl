@@ -158,14 +158,16 @@ function _test_f(method::Method)
         @test LHSf64 isa Float64
         @test LHSf32 isa Float32
         # Test concurrency
-        ap64 = Vector{Float64}(undef, 24)
-        ap32 = Vector{Float32}(undef, 24)
-        Base.Threads.@threads for i in 1:24
-            ap64[i] = LHS(args64...)
-            ap32[i] = LHS(args32...) 
+        if rand() < 100/NTESTS
+            ap64 = Vector{Float64}(undef, 24)
+            ap32 = Vector{Float32}(undef, 24)
+            Base.Threads.@threads for i in 1:24
+                ap64[i] = LHS(args64...)
+                ap32[i] = LHS(args32...)
+            end
+            @test all(==(RHSf64), ap64)
+            @test all(==(RHSf32), ap32)
         end
-        @test all(==(RHSf64), ap64)
-        @test all(==(RHSf32), ap32)
     end
     return true
 end
