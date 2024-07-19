@@ -9,47 +9,26 @@ struct CacheKey{T}
     id::UInt8
 end
 
-const CacheLock = Base.Threads.SpinLock()
+struct APMarker{T} end # Avoid collisions with other packages using the task_local_storage
 
-const TASK_LOCAL_F64CACHE = Dict{Task,Dict{CacheKey{Float64},Vec{Float64}}}()
-const TASK_LOCAL_F32CACHE = Dict{Task,Dict{CacheKey{Float32},Vec{Float32}}}()
-@inline TASK_LOCAL_CACHE(::Type{Float64}) = TASK_LOCAL_F64CACHE
-@inline TASK_LOCAL_CACHE(::Type{Float32}) = TASK_LOCAL_F32CACHE
+const APCache{T} = Dict{CacheKey{T},Vec{T}}
+
 @inline function task_local_cache(::Type{T}) where {T}
-    tls = TASK_LOCAL_CACHE(T)
-    t = current_task()
-    if haskey(tls, t)
-        return tls[t]
-    else
-        d = Dict{CacheKey{T},Vec{T}}()
-        lock(CacheLock) do
-            tls[t] = d
-        end
-        return tls[t]
-    end
+    tls = get!(task_local_storage(), APMarker{T}()) do
+        Dict{CacheKey{T},Vec{T}}()
+    end::APCache{T}
+    return tls::APCache{T}
 end
 
-"""
-    free!()
 
-Empties the caches used for computing the predicates.
-"""
-free!() = (empty!(TASK_LOCAL_F64CACHE); empty!(TASK_LOCAL_F32CACHE))
-
-@inline cache_eltype(::Dict{CacheKey{Float64},Vec{Float64}}) = Float64
-@inline cache_eltype(::Dict{CacheKey{Float32},Vec{Float32}}) = Float32
-
-@inline function get_cache!(tls, size, id)
-    T = cache_eltype(tls)
+@inline function get_cache!(tls::APCache{T}, size, id) where {T}
     cache::Vec{T} = get!(tls, CacheKey{T}(size, id)) do
         Vec{T}(zeros(T, Int(size))) # Memory{T}(undef, Int(size)) has weird concurrency issues sometimes?
     end
     return cache::Vec{T}
 end
 
-abstract type AbstractCache{T} end
-
-struct Orient2Cache{T} <: AbstractCache{T}
+struct Orient2Cache{T}
     h4::NTuple{4,T}
     h8::NTuple{8,T}
     h12::NTuple{12,T}
@@ -63,7 +42,7 @@ end
     return Orient2Cache{T}(h4, h8, h12, h16)
 end
 
-struct Orient3Cache{T} <: AbstractCache{T}
+struct Orient3Cache{T}
     h4::NTuple{4,T}
     h8::NTuple{8,T}
     h12::NTuple{12,T}
@@ -83,6 +62,9 @@ struct Orient3Cache{T} <: AbstractCache{T}
 end
 @inline function Orient3Cache{T}() where {T}
     tls = task_local_cache(T)
+    return Orient3Cache{T}(tls)
+end
+@inline function Orient3Cache{T}(tls::APCache{T}) where {T}
     h4 = ntuple(_ -> zero(T), Val(4))
     h8 = ntuple(_ -> zero(T), Val(8))
     h12 = ntuple(_ -> zero(T), Val(12))
@@ -105,7 +87,7 @@ end
     )
 end
 
-struct IncircleCache{T} <: AbstractCache{T}
+struct IncircleCache{T}
     h4::NTuple{4,T}
     h8::NTuple{8,T}
     h12::NTuple{12,T}
@@ -137,6 +119,9 @@ struct IncircleCache{T} <: AbstractCache{T}
 end
 @inline function IncircleCache{T}() where {T}
     tls = task_local_cache(T)
+    return IncircleCache{T}(tls)
+end
+@inline function IncircleCache{T}(tls::APCache{T}) where {T}
     h4 = ntuple(_ -> zero(T), Val(4))
     h8 = ntuple(_ -> zero(T), Val(8))
     h12 = ntuple(_ -> zero(T), Val(12))
@@ -174,7 +159,7 @@ end
     )
 end
 
-struct InsphereCache{T} <: AbstractCache{T}
+struct InsphereCache{T}
     h4::NTuple{4,T}
     h8::NTuple{8,T}
     h12::NTuple{12,T}
@@ -238,6 +223,9 @@ struct InsphereCache{T} <: AbstractCache{T}
 end
 @inline function InsphereCache{T}() where {T}
     tls = task_local_cache(T)
+    return InsphereCache{T}(tls)
+end
+@inline function InsphereCache{T}(tls::APCache{T}) where {T}
     h4 = ntuple(_ -> zero(T), Val(4))
     h8 = ntuple(_ -> zero(T), Val(8))
     h12 = ntuple(_ -> zero(T), Val(12))

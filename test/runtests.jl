@@ -195,11 +195,3 @@ setup_insphere(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 5)
     @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float64)))
     @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float32)))
 end
-
-@testset "free!" begin
-    F64C = AP.TASK_LOCAL_F64CACHE
-    F32C = AP.TASK_LOCAL_F32CACHE
-    @test !isempty(F64C) && !isempty(F32C)
-    AP.free!()
-    @test isempty(F64C) && isempty(F32C)
-end
