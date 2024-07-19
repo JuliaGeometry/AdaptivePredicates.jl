@@ -1,6 +1,7 @@
 using AdaptivePredicates
 using Test
 using Supposition
+using BenchmarkTools
 import ExactPredicates: ExactPredicates
 const AP = AdaptivePredicates
 cd("original") do
@@ -180,12 +181,11 @@ check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know 
     end
 end
 
+setup_orient2(T) = ntuple(_ -> (_rand(T), _rand(T)), 3)
+setup_orient3(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 4)
+setup_incircle(T) = ntuple(_ -> (_rand(T), _rand(T)), 4)
+setup_insphere(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 5)
 @testset "Allocations" begin
-    setup_orient2(T) = ntuple(_ -> (_rand(T), _rand(T)), 3)
-    setup_orient3(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 4)
-    setup_incircle(T) = ntuple(_ -> (_rand(T), _rand(T)), 4)
-    setup_insphere(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 5)
-
     @test iszero(@ballocated orient2(args...) setup = (args = setup_orient2(Float64)))
     @test iszero(@ballocated orient2(args...) setup = (args = setup_orient2(Float32)))
     @test iszero(@ballocated orient3(args...) setup = (args = setup_orient3(Float64)))

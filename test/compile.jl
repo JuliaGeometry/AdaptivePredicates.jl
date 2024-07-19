@@ -78,8 +78,12 @@ end
 function compile(pred)
     write("predicates64.c", pred)
     write("predicates32.c", convert_float(pred))
-    run(`gcc -shared -fPIC -g2 predicates64.c -o libpredicates64.so`)
-    run(`gcc -shared -fPIC -g2 predicates32.c -o libpredicates32.so`)
+    if !isfile("libpredicates64.so")
+        run(`gcc -shared -fPIC -g2 predicates64.c -o libpredicates64.so`)
+    end
+    if !isfile("libpredicates32.so")
+        run(`gcc -shared -fPIC -g2 predicates32.c -o libpredicates32.so`)
+    end
 end
 
 function test_macros()
