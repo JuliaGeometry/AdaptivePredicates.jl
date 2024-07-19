@@ -15,7 +15,7 @@ const APCache{T} = Dict{CacheKey{T},Vec{T}}
 
 @inline function task_local_cache(::Type{T}) where {T}
     tls = get!(task_local_storage(), APMarker{T}()) do
-        Dict{CacheKey{T},Vec{T}}()
+        APCache{T}()
     end::APCache{T}
     return tls::APCache{T}
 end
