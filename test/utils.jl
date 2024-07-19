@@ -147,15 +147,25 @@ function _test_f(method::Method)
     RHSf32 = RHS(_retup_complex(args32)...)
     @test LHSf64 ⪧ RHSf64 check_zero = method.f ∉ non_check_zeros
     @test LHSf32 ⪧ RHSf32 check_zero = method.f ∉ non_check_zeros
-    if method isa PredicateMethod && method.f ∈ (:orient2, :incircle, :orient3, :insphere)
-        LHSp = getproperty(AP, Symbol(method.f, :p))
-        LHSf64p::Int = @inferred LHSp(args64...)
-        LHSf32p::Int = @inferred LHSp(args32...)
-        @test LHSf64p == Int(sign(RHSf64))
-        @test LHSf32p == Int(sign(RHSf32))
-
+    if method isa PredicateMethod
+        if method.f ∈ (:orient2, :incircle, :orient3, :insphere)
+            LHSp = getproperty(AP, Symbol(method.f, :p))
+            LHSf64p::Int = @inferred LHSp(args64...)
+            LHSf32p::Int = @inferred LHSp(args32...)
+            @test LHSf64p == Int(sign(RHSf64))
+            @test LHSf32p == Int(sign(RHSf32))
+        end
         @test LHSf64 isa Float64
         @test LHSf32 isa Float32
+        # Test concurrency
+        ap64 = Vector{Float64}(undef, 24)
+        ap32 = Vector{Float32}(undef, 24)
+        Base.Threads.@threads for i in 1:24
+            ap64[i] = LHS(args64...)
+            ap32[i] = LHS(args32...) 
+        end
+        @test all(==(RHSf64), ap64)
+        @test all(==(RHSf32), ap32)
     end
     return true
 end
