@@ -60,7 +60,7 @@ Shewchuk's original paper gives no analysis in the presence of underflow or over
 
 Note that this range comes from the `insphere` predicate. The number range is much wider for `orient2`, for example, since it requires far fewer additions, subtractions, and multiplications.
 
-Thus, for some numbers, the values returned from these predicates may be invalid due to underflow or overflow. In ranges where this is a concern, you should use [ExactPredicates.jl](https://github.com/lairez/ExactPredicates.jl) instead. 
+Thus, for some numbers, the values returned from these predicates may be invalid due to underflow or overflow. In ranges where this is a concern, you should use [ExactPredicates.jl](https://github.com/lairez/ExactPredicates.jl) instead. If you need the values of the predicates and not just their signs, but are outside of the range valid for AdaptivePredicates.jl, you are unfortunately out of luck.
 
 If you need more information about how these predicates work, you should refer to Shewchuk's paper.
 

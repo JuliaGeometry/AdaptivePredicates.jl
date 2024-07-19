@@ -3,16 +3,16 @@ include("orient3.jl")
 include("incircle.jl")
 include("insphere.jl")
 
-_tup(c::Complex) = (c.re, c.im)
-sgn(x) = Int(sign(x))
+@inline _tup(c::Complex) = (c.re, c.im)
+@inline sgn(x) = Int(sign(x))
 
-orient2(pa::Complex, pb::Complex, pc::Complex) = orient2(_tup(pa), _tup(pb), _tup(pc))
-incircle(pa::Complex, pb::Complex, pc::Complex, pd::Complex) = incircle(_tup(pa), _tup(pb), _tup(pc), _tup(pd))
+@inline orient2(pa::Complex, pb::Complex, pc::Complex) = orient2(_tup(pa), _tup(pb), _tup(pc))
+@inline incircle(pa::Complex, pb::Complex, pc::Complex, pd::Complex) = incircle(_tup(pa), _tup(pb), _tup(pc), _tup(pd))
 
-orient2p(pa, pb, pc) = sgn(orient2(pa, pb, pc))
-orient3p(pa, pb, pc, pd) = sgn(orient3(pa, pb, pc, pd))
-incirclep(pa, pb, pc, pd) = sgn(incircle(pa, pb, pc, pd))
-inspherep(pa, pb, pc, pd, pe) = sgn(insphere(pa, pb, pc, pd, pe))
+@inline orient2p(pa, pb, pc) = sgn(orient2(pa, pb, pc))
+@inline orient3p(pa, pb, pc, pd) = sgn(orient3(pa, pb, pc, pd))
+@inline incirclep(pa, pb, pc, pd) = sgn(incircle(pa, pb, pc, pd))
+@inline inspherep(pa, pb, pc, pd, pe) = sgn(insphere(pa, pb, pc, pd, pe))
 
 @doc """
     orient2(p, q, r)
@@ -49,7 +49,7 @@ the sign of the result will be reversed.
 
 See also [`incirclep`](@ref).
 """
-incircle 
+incircle
 
 @doc """
     incirclep(p, q, r, s) -> Int 
