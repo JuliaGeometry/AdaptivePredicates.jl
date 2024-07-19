@@ -15,8 +15,8 @@ to functions. main() runs the tests.
 #define REAL double
 #define INEXACT
 #define NUM_TESTS 100
-#define L 1.793662034335766e-43
-#define R 3.2138760885179806e60
+const REAL L = 1.793662034335766e-43;
+const REAL R = 3.2138760885179806e60;
 
 typedef struct /* Definitely a better way to do all this of this nonsense */
 {
@@ -141,7 +141,7 @@ typedef struct
 
 REAL randf(REAL a, REAL b)
 {
-  return a + (b - a) * (REAL)rand() / (REAL)RAND_MAX;
+  return a + (b - a) * (REAL)(double)rand() / (REAL)RAND_MAX; 
 }
 
 const char *BoolString(int fail)

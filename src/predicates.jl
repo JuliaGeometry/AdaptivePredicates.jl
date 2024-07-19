@@ -1,90 +1,137 @@
+include("orient2.jl")
+include("orient3.jl")
+include("incircle.jl")
+include("insphere.jl")
 
+_tup(c::Complex) = (c.re, c.im)
+sgn(x) = Int(sign(x))
+
+orient2(pa::Complex, pb::Complex, pc::Complex) = orient2(_tup(pa), _tup(pb), _tup(pc))
+incircle(pa::Complex, pb::Complex, pc::Complex, pd::Complex) = incircle(_tup(pa), _tup(pb), _tup(pc), _tup(pd))
+
+orient2p(pa, pb, pc) = sgn(orient2(pa, pb, pc))
+orient3p(pa, pb, pc, pd) = sgn(orient3(pa, pb, pc, pd))
+incirclep(pa, pb, pc, pd) = sgn(incircle(pa, pb, pc, pd))
+inspherep(pa, pb, pc, pd, pe) = sgn(insphere(pa, pb, pc, pd, pe))
+
+@doc """
+    orient2(p, q, r)
+    
+For three points `p`, `q`, `r` in the plane, returns:
+
+- A positive value if `r` is left of the oriented line defined by `(p, q)`.
+- A negative value if `r` is right of the line.
+- Zero if the three points are collinear.
+
+Equivalently, the returned value is positive if the triangle `(p, q, r)` is oriented 
+counter-clockwise; negative if the triangle is oriented clockwise; and zero if the points 
+are collinear.
+
+The inputs can be either all `NTuple`s or all `Complex`, with either all `Float64` or all `Float32` coordinates.
+
+Note that `orient2(p, q, r)/2` is also roughly the signed area of the triangle defined by `(p, q, r)`. 
+
+See also [`orient2p`](@ref).
 """
-Return a positive value if the points pa, pb, and pc occur
-in counterclockwise order a negative value if they occur
-in clockwise order and zero if they are collinear.  The
-result is also a rough approximation of twice the signed
-area of the triangle defined by the three points.                                                             
+orient2
+
+@doc """
+    incircle(p, q, r, s)
+
+For four points `p`, `q`, `r`, `s` in the plane, returns:
+
+- A positive value if `s` is inside the circle through `p`, `q`, and `r`.
+- A negative value if `s` is outside the circle.
+- Zero if the four points are cocircular.
+
+The points `p`, `q`, and `r` are assumed to be in counter-clockwise order, otherwise 
+the sign of the result will be reversed.
+
+See also [`incirclep`](@ref).
 """
-function orient2(pa, pb, pc)::Float64
-    detleft = (pa[1] - pc[1]) * (pb[2] - pc[2])
-    detright = (pa[2] - pc[2]) * (pb[1] - pc[1])
-    det = detleft - detright
+incircle 
 
-    if (detleft > 0.0)
-        if (detright <= 0.0)
-            return det
-        else
-            detsum = detleft + detright
-        end
-    elseif (detleft < 0.0)
-        if (detright >= 0.0)
-            return det
-        else
-            detsum = -detleft - detright
-        end
-    else
-        return det
-    end
+@doc """
+    incirclep(p, q, r, s) -> Int 
 
-    errbound = ccwerrboundA * detsum
-    if (det >= errbound) || (-det >= errbound)
-        return det
-    end
+This function is the same as [`incircle`], except returns the sign of the result,
+i.e. `Int(sign(incircle(p, q, r, s)))`.
+"""
+incirclep
 
-    return orient2adapt(pa, pb, pc, detsum)
-end
+@doc """
+    insphere(p, q, r, s, t)
 
-function orient2adapt(pa, pb, pc, detsum::Float64)::Float64
-    acx = (pa[1] - pc[1])
-    bcx = (pb[1] - pc[1])
-    acy = (pa[2] - pc[2])
-    bcy = (pb[2] - pc[2])
+For five points `p`, `q`, `r`, `s`, `t` in the plane, returns: 
 
-    detleft, detlefttail = Two_Product(acx, bcy)
-    detright, detrighttail = Two_Product(acy, bcx)
+- A positive value if `t` is inside the sphere through `p`, `q`, `r`, and `s`.
+- A negative value if `t` is outside the sphere.
+- Zero if the five points are cospherical. 
 
-    B3, B2, B1, B0 = Two_Two_Diff(detleft, detlefttail, detright, detrighttail)
-    B = (B0, B1, B2, B3)
+The points `p`, `q`, `r`, and `s` are assumed to be ordered so that they 
+have positive oriented (according to [`orient3`](@ref)), otherwise 
+the sign of the result will be reversed.
 
-    det = estimate(4, B)
-    errbound = ccwerrboundB * detsum
-    if ((det >= errbound) || (-det >= errbound))
-        return det
-    end
+See also [`inspherep`](@ref).
+"""
+insphere
 
-    acxtail = Two_Diff_Tail(pa[1], pc[1], acx)
-    bcxtail = Two_Diff_Tail(pb[1], pc[1], bcx)
-    acytail = Two_Diff_Tail(pa[2], pc[2], acy)
-    bcytail = Two_Diff_Tail(pb[2], pc[2], bcy)
+@doc """
+    inspherep(p, q, r, s, t) -> Int 
 
-    if ((acxtail == 0.0) && (acytail == 0.0)
-        && (bcxtail == 0.0) && (bcytail == 0.0))
-        return det
-    end
+This function is the same as [`insphere`], except returns the sign of the result,
+i.e. `Int(sign(incircle(p, q, r, s, t)))`.
+"""
+inspherep
 
-    errbound = ccwerrboundC * detsum + resulterrbound * Absolute(det)
-    det += (acx * bcytail + bcy * acxtail) - (acy * bcxtail + bcx * acytail)
-    if ((det >= errbound) || (-det >= errbound))
-        return det
-    end
+@doc """
+    orient2p(p, q, r) -> Int
+    
+This function is the same as [`orient2`], except returns the sign of the result,
+i.e. `Int(sign(orient2(p, q, r)))`.
+"""
+orient2p
 
-    s1, s0 = Two_Product(acxtail, bcy)
-    t1, t0 = Two_Product(acytail, bcx)
-    u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
-    u = (u0, u1, u2, u3)
-    C1, C1length = fast_expansion_sum_zeroelim(4, B, 4, u, Val(8))
+@doc """
+    orient3(p, q, r, s)
+    
+For four points `p`, `q`, `r`, `s` in space, consider the oriented plane 
+on which the triangle `(p, q, r)` is positively oriented. The function returns 
 
-    s1, s0 = Two_Product(acx, bcytail)
-    t1, t0 = Two_Product(acy, bcxtail)
-    u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
-    u = (u0, u1, u2, u3)
-    C2, C2length = fast_expansion_sum_zeroelim(C1length, C1, 4, u, Val(12))
+- A positive value if `s` is below this plane.
+- A negative value if `s` is below this plane.
+- Zero if the four points are coplanar.
 
-    s1, s0 = Two_Product(acxtail, bcytail)
-    t1, t0 = Two_Product(acytail, bcxtail)
-    u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
-    u = (u0, u1, u2, u3)
-    D, Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, Val(16))
-    return @inbounds D[Dlength] # originally Dlength - 1 
-end
+The inputs should all be `NTuple`s with either all `Float64` or all `Float32` coordinates.
+
+Note that `orient3(p, q, r, s)/2` is also roughly the signed area of the tetrahedron defined by `(p, q, r, s)`. 
+
+The result returned from this predicate can also be interpreted in terms of the orientation of the tetrahedron 
+defined by `(p, q, r, s)`, where a positively oriented tetrahedron `(p, q, r, s)` takes the form
+
+                                   z.
+                                 .
+                               ,/
+                             s
+                           ,/|'\\
+                         ,/  |  '\\
+                       ,/    '.   '\\
+                     ,/       |     '\\                 
+                   ,/         |       '\\              
+                  p-----------'.--------q --> x
+                   '\\.         |      ,/              
+                      '\\.      |    ,/                 
+                         '\\.   '. ,/    
+                            '\\. |/      
+                               'r       
+                                 '\\.    
+"""
+orient3
+
+@doc """
+    orient3p(p, q, r, s) -> Int
+    
+This function is the same as [`orient3`], except returns the sign of the result,
+i.e. `Int(sign(orient2(p, q, r, s)))`.
+"""
+orient3p
