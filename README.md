@@ -33,10 +33,10 @@ julia> inspherep(pa, pb, pc, pd, pe)
 
 ## Installation
 
-The package is not yet registered. If you want to use the package, you can do
+If you want to use the package, you can do
 ```julia
 using Pkg
-Pkg.add("https://github.com/JuliaGeometry/AdaptivePredicates.jl")
+Pkg.add("AdaptivePredicates")
 using AdaptivePredicates
 ```
 
