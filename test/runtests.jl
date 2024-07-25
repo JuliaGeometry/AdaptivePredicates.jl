@@ -1,6 +1,8 @@
 using AdaptivePredicates
 using Test
-using Supposition
+@static if VERSION ≥ v"1.8"
+    using Supposition
+end
 using BenchmarkTools
 import ExactPredicates: ExactPredicates
 using Aqua
@@ -100,88 +102,89 @@ const PREDICATES = (
     end
 end
 
-check_range(x::Float64) = iszero(x) || exponent(abs(x)) ∈ -142:201 # Ranges are explained in the README
-check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know the exact range for Float32, it might be [-3, 24] but ExactPredicates doesn't use Float32 anyway for me to confirm.
-
-@testset "Supposition tests" begin
-    for (T, Tn) in ((Float64, 64), (Float32, 32))
-        fgen = Data.Floats{T}(infs=false, nans=false)
-        cgen = @composed _complex(a=fgen, b=fgen) = a + b * im
-        r2gen = @composed _tuple(a=fgen, b=fgen) = (a, b)
-        r3gen = @composed _tuple(a=fgen, b=fgen, c=fgen) = (a, b, c)
-        # Against C
-        @check function _orient2(p=cgen, q=cgen, r=cgen)
-            assume!(all(check_range, (p.re, p.im, q.re, q.im, r.re, r.im)))
-            ap = orient2(p, q, r)
-            c = C.orient2d((p.re, p.im), (q.re, q.im), (r.re, r.im))
-            event!("AdaptiveOrient2$(Tn)", ap)
-            event!("COrient2$(Tn)", c)
-            ap == c
-        end
-
-        @check function _orient3(p=r3gen, q=r3gen, r=r3gen, s=r3gen)
-            assume!(all(check_range, (p..., q..., r..., s...)))
-            ap = orient3(p, q, r, s)
-            c = C.orient3d(p, q, r, s)
-            event!("AdaptiveOrient3$(Tn)", ap)
-            event!("COrient3$(Tn)", c)
-            ap == c
-        end
-
-        @check function _incircle(p=r2gen, q=r2gen, r=r2gen, s=r2gen)
-            assume!(all(check_range, (p..., q..., r..., s...)))
-            ap = incircle(p, q, r, s)
-            c = C.incircle(p, q, r, s)
-            event!("AdaptiveIncircle$(Tn)", ap)
-            event!("CIncircle$(Tn)", c)
-            ap == c
-        end
-
-        @check function _insphere(p=r3gen, q=r3gen, r=r3gen, s=r3gen, t=r3gen)
-            assume!(all(check_range, (p..., q..., r..., s..., t...)))
-            ap = insphere(p, q, r, s, t)
-            c = C.insphere(p, q, r, s, t)
-            event!("AdaptiveInsphere$(Tn)", ap)
-            event!("CInsphere$(Tn)", c)
-            ap == c
-        end
-
-        # Against ExactPredicates
-        if T ≠ Float32
-            @check function _orient2p(p=cgen, q=cgen, r=cgen)
+@static if VERSION ≥ v"1.8"
+    check_range(x::Float64) = iszero(x) || exponent(abs(x)) ∈ -142:201 # Ranges are explained in the README
+    check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know the exact range for Float32, it might be [-3, 24] but ExactPredicates doesn't use Float32 anyway for me to confirm.
+    @testset "Supposition tests" begin
+        for (T, Tn) in ((Float64, 64), (Float32, 32))
+            fgen = Data.Floats{T}(infs=false, nans=false)
+            cgen = @composed _complex(a=fgen, b=fgen) = a + b * im
+            r2gen = @composed _tuple(a=fgen, b=fgen) = (a, b)
+            r3gen = @composed _tuple(a=fgen, b=fgen, c=fgen) = (a, b, c)
+            # Against C
+            @check function _orient2(p=cgen, q=cgen, r=cgen)
                 assume!(all(check_range, (p.re, p.im, q.re, q.im, r.re, r.im)))
-                ap = orient2p(p, q, r)
-                c = ExactPredicates.orient((p.re, p.im), (q.re, q.im), (r.re, r.im))
+                ap = orient2(p, q, r)
+                c = C.orient2d((p.re, p.im), (q.re, q.im), (r.re, r.im))
                 event!("AdaptiveOrient2$(Tn)", ap)
-                event!("ExactPredicatesOrient2$(Tn)", c)
+                event!("COrient2$(Tn)", c)
                 ap == c
             end
 
-            @check function _orient3p(p=r3gen, q=r3gen, r=r3gen, s=r3gen)
+            @check function _orient3(p=r3gen, q=r3gen, r=r3gen, s=r3gen)
                 assume!(all(check_range, (p..., q..., r..., s...)))
-                ap = orient3p(p, q, r, s)
-                c = ExactPredicates.orient(p, q, r, s)
+                ap = orient3(p, q, r, s)
+                c = C.orient3d(p, q, r, s)
                 event!("AdaptiveOrient3$(Tn)", ap)
-                event!("ExactPredicatesOrient3$(Tn)", c)
+                event!("COrient3$(Tn)", c)
                 ap == c
             end
 
-            @check function _incirclep(p=r2gen, q=r2gen, r=r2gen, s=r2gen)
+            @check function _incircle(p=r2gen, q=r2gen, r=r2gen, s=r2gen)
                 assume!(all(check_range, (p..., q..., r..., s...)))
-                ap = incirclep(p, q, r, s)
-                c = ExactPredicates.incircle(p, q, r, s)
+                ap = incircle(p, q, r, s)
+                c = C.incircle(p, q, r, s)
                 event!("AdaptiveIncircle$(Tn)", ap)
-                event!("ExactPredicatesIncircle$(Tn)", c)
+                event!("CIncircle$(Tn)", c)
                 ap == c
             end
 
-            @check function _inspherep(p=r3gen, q=r3gen, r=r3gen, s=r3gen, t=r3gen)
+            @check function _insphere(p=r3gen, q=r3gen, r=r3gen, s=r3gen, t=r3gen)
                 assume!(all(check_range, (p..., q..., r..., s..., t...)))
-                ap = inspherep(p, q, r, s, t)
-                c = ExactPredicates.insphere(p, q, r, s, t)
+                ap = insphere(p, q, r, s, t)
+                c = C.insphere(p, q, r, s, t)
                 event!("AdaptiveInsphere$(Tn)", ap)
-                event!("ExactPredicatesInsphere$(Tn)", c)
+                event!("CInsphere$(Tn)", c)
                 ap == c
+            end
+
+            # Against ExactPredicates
+            if T ≠ Float32
+                @check function _orient2p(p=cgen, q=cgen, r=cgen)
+                    assume!(all(check_range, (p.re, p.im, q.re, q.im, r.re, r.im)))
+                    ap = orient2p(p, q, r)
+                    c = ExactPredicates.orient((p.re, p.im), (q.re, q.im), (r.re, r.im))
+                    event!("AdaptiveOrient2$(Tn)", ap)
+                    event!("ExactPredicatesOrient2$(Tn)", c)
+                    ap == c
+                end
+
+                @check function _orient3p(p=r3gen, q=r3gen, r=r3gen, s=r3gen)
+                    assume!(all(check_range, (p..., q..., r..., s...)))
+                    ap = orient3p(p, q, r, s)
+                    c = ExactPredicates.orient(p, q, r, s)
+                    event!("AdaptiveOrient3$(Tn)", ap)
+                    event!("ExactPredicatesOrient3$(Tn)", c)
+                    ap == c
+                end
+
+                @check function _incirclep(p=r2gen, q=r2gen, r=r2gen, s=r2gen)
+                    assume!(all(check_range, (p..., q..., r..., s...)))
+                    ap = incirclep(p, q, r, s)
+                    c = ExactPredicates.incircle(p, q, r, s)
+                    event!("AdaptiveIncircle$(Tn)", ap)
+                    event!("ExactPredicatesIncircle$(Tn)", c)
+                    ap == c
+                end
+
+                @check function _inspherep(p=r3gen, q=r3gen, r=r3gen, s=r3gen, t=r3gen)
+                    assume!(all(check_range, (p..., q..., r..., s..., t...)))
+                    ap = inspherep(p, q, r, s, t)
+                    c = ExactPredicates.insphere(p, q, r, s, t)
+                    event!("AdaptiveInsphere$(Tn)", ap)
+                    event!("ExactPredicatesInsphere$(Tn)", c)
+                    ap == c
+                end
             end
         end
     end
