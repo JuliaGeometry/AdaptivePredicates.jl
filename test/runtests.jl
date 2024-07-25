@@ -1,8 +1,6 @@
 using AdaptivePredicates
 using Test
-@static if VERSION ≥ v"1.8"
-    using Supposition
-end
+using Supposition
 using BenchmarkTools
 import ExactPredicates: ExactPredicates
 using Aqua
