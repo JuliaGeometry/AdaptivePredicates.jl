@@ -48,7 +48,7 @@ All the functions from the `predicates.c` file from Shewchuk's original code hav
 - All arithmetic functions have been implemented, e.g. `grow_expansion` and `scale_expansion_zeroelim`.
 - All the predicates have been implemented. In particular, not only have `orient2`, `orient3`, `incircle`, and `insphere` been implemented, but also the forms with the suffixes `fast`, `exact`, and `slow` (and `adapt`, but this is what `orient2`, `orient3`, `incircle`, and `insphere` use anyway).
 
-Only the functions `orient2`, `orient3`, `incircle`, and `insphere` have been marked as `public`, as well as their `p` counterparts.
+Only the functions `orient2`, `orient3`, `incircle`, and `insphere` have been marked as `public`, as well as their `p` and `fast` counterparts.
 
 ## Caveats
 
