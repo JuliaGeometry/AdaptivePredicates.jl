@@ -102,7 +102,6 @@ end
 
 check_range(x::Float64) = iszero(x) || exponent(abs(x)) ∈ -142:201 # Ranges are explained in the README
 check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know the exact range for Float32, it might be [-3, 24] but ExactPredicates doesn't use Float32 anyway for me to confirm.
-
 @testset "Supposition tests" begin
     for (T, Tn) in ((Float64, 64), (Float32, 32))
         fgen = Data.Floats{T}(infs=false, nans=false)
