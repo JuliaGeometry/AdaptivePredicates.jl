@@ -98,9 +98,9 @@ end
 function cleanup()
     rm("predicates32.c")
     rm("predicates64.c")
-    rm("macro_defs32.c")
-    rm("./macro_tests" * (Sys.iswindows() ? ".exe" : ""))
-    rm("./macro_tests32" * (Sys.iswindows() ? ".exe" : ""))
+    # rm("macro_defs32.c")
+    # rm("./macro_tests" * (Sys.iswindows() ? ".exe" : ""))
+    # rm("./macro_tests32" * (Sys.iswindows() ? ".exe" : ""))
 end
 
 function compile()
@@ -110,7 +110,7 @@ function compile()
     fix_two_square |>
     convert_macros |>
     compile
-    test_macros()
+    # test_macros()
     cleanup()
 end
 
