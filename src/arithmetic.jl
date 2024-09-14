@@ -197,24 +197,24 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
         fnow = f[1]
         eindex = findex = 1
         if (fnow > enow) == (fnow > -enow)
-            Q = enow
-            eindex += 1
-            enow = safe_getindex(e, eindex, elen)
+            Q = enow 
+            eindex += 1 
+            enow = e[eindex]
         else
             Q = fnow
             findex += 1
-            fnow = safe_getindex(f, findex, flen)
+            fnow = f[findex]
         end
         hindex = 1
         if (eindex ≤ elen) && (findex ≤ flen)
             if (fnow > enow) == (fnow > -enow)
                 Q, hh = Fast_Two_Sum(enow, Q)
                 eindex += 1
-                enow = safe_getindex(e, eindex, elen)
+                enow = e[eindex]
             else
                 Q, hh = Fast_Two_Sum(fnow, Q)
                 findex += 1
-                fnow = safe_getindex(f, findex, flen)
+                fnow = f[findex]
             end
             if !iszero(hh)
                 h = setindex!!(h, hh, hindex)
@@ -224,11 +224,11 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
                 if (fnow > enow) == (fnow > -enow)
                     Q, hh = Two_Sum(Q, enow)
                     eindex += 1
-                    enow = safe_getindex(e, eindex, elen)
+                    enow = e[eindex]
                 else
                     Q, hh = Two_Sum(Q, fnow)
                     findex += 1
-                    fnow = safe_getindex(f, findex, flen)
+                    fnow = f[findex]
                 end
                 if !iszero(hh)
                     h = setindex!!(h, hh, hindex)

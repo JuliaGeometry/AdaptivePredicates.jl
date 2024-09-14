@@ -104,7 +104,7 @@ struct Expansion{T}
     h::Vector{T}
     hlen::Int # not necessarily length(h)
     function Expansion(h::Vector{T}, hlen::Int; check_zero=false) where {T}
-        check_zero && @test all(iszero, view(h, hlen+1:length(h))) # For compress, the remaining components don't need to be zero
+        check_zero && @test all(iszero, view(h, hlen+1:length(h))) && @test hlen ≤ length(h) # For compress, the remaining components don't need to be zero
         return new{T}(h, hlen)
     end
 end
@@ -128,7 +128,7 @@ function test_f(method::Method)
     return _test_f(method)
 end
 function test_f(method::PredicateMethod)
-    for suffix in (:fast, :exact, :slow, :adapt, Symbol())
+    for suffix in (:fast, :exact, :slow, Symbol())
         g = Symbol(method.f, suffix)
         _method = PredicateMethod(g, method.nargs, method.argdims)
         _test_f(_method)

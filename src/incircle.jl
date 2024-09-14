@@ -306,7 +306,7 @@ function incircleadapt(pa, pb, pc, pd, permanent, cache = nothing)
         # If any of the lengths are 32, then the expansions were truncated and so let's recompute them.
         if ablen == 32 || finlength == 32 
             abdet, ablen = fast_expansion_sum_zeroelim(alen, adet, blen, bdet, h32)
-            fin1, finlength = fast_expansion_sum_zeroelim(ablen, abdet, clen, cdet, 32) 
+            fin1, finlength = fast_expansion_sum_zeroelim(ablen, abdet, clen, cdet, h32) 
 
             # Repeat the return conditions above 
             det = estimate(finlength, fin1)
@@ -346,7 +346,7 @@ function incircleadapt(pa, pb, pc, pd, permanent, cache = nothing)
             copyto!(h1152_1, fin1) 
         end
 
-        finnow = fin1
+        finnow = h1152_1
         finother = h1152_2 
 
         if !iszero(bdxtail) || !iszero(bdytail) || !iszero(cdxtail) || !iszero(cdytail)

@@ -125,17 +125,19 @@ end
 incircleadapt_cache(_, cache) = cache
 incircleadapt_cache(::Type{T}, ::Nothing) where {T} = incircleadapt_cache(T)
 function incircleadapt_cache(::Type{T}) where {T}
-    cache_size = (64) + (64) + (1152 + 1152)
-    cache = Vec{T}(undef, cache_size)
-    offset = 0
-    h48_1 = view(cache, 0 .+ (1:48))
-    offset += 64
-    h64_1 = view(cache, offset .+ (1:64))
-    offset += 64
-    h1152_1 = view(cache, offset .+ (1:1152))
-    offset += 1152
-    h1152_2 = view(cache, offset .+ (1:1152))
-    return h48_1, h64_1, h1152_1, h1152_2
+    @inbounds begin
+        cache_size = (64) + (64) + (1152 + 1152)
+        cache = Vec{T}(undef, cache_size)
+        offset = 0
+        h48_1 = view(cache, 0 .+ (1:48))
+        offset += 64
+        h64_1 = view(cache, offset .+ (1:64))
+        offset += 64
+        h1152_1 = view(cache, offset .+ (1:1152))
+        offset += 1152
+        h1152_2 = view(cache, offset .+ (1:1152))
+        return h48_1, h64_1, h1152_1, h1152_2
+    end
 end
 
 struct InsphereCache{T}
