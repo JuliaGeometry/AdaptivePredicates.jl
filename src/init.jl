@@ -72,5 +72,4 @@ const IC32 = InitConstants{Float32}()
 for e in fieldnames(InitConstants)
     @eval @inline $e(::Type{Float64}) = IC64.$e 
     @eval @inline $e(::Type{Float32}) = IC32.$e 
-    @eval @inline $e(p) = $e(eltype(p))
 end

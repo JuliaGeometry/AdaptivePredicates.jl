@@ -1,6 +1,6 @@
-@inline setindex!!(tup::Tuple, value, index) = @inbounds Base.setindex(tup, value, index)
+@inline setindex!!(tup::Tuple, value, index) = @inbounds index > length(tup) ? tup : Base.setindex(tup, value, index)
 @inline setindex!!(vec::AbstractVector, value, index) = @inbounds Base.setindex!(vec, value, index)
-@inline safe_getindex(e, eindex, elen) = eindex ≤ elen ? @inbounds(e[eindex]) : zero(eltype(e)) # Shewchuk's code is relying on undefined behaviour from out-of-bounds access where we call this. We need to be careful.
+@inline safe_getindex(e, eindex, elen) = (eindex ≤ elen && eindex ≤ length(e)) ? @inbounds(e[eindex]) : zero(eltype(e)) # Shewchuk's code is relying on undefined behaviour from out-of-bounds access where we call this. We need to be careful.
 
 function grow_expansion(elen, e, b, h)
     @inbounds begin
@@ -199,22 +199,22 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
         if (fnow > enow) == (fnow > -enow)
             Q = enow 
             eindex += 1 
-            enow = e[eindex]
+            enow = safe_getindex(e, eindex, elen)
         else
             Q = fnow
             findex += 1
-            fnow = f[findex]
+            fnow = safe_getindex(f, findex, flen)
         end
         hindex = 1
         if (eindex ≤ elen) && (findex ≤ flen)
             if (fnow > enow) == (fnow > -enow)
                 Q, hh = Fast_Two_Sum(enow, Q)
                 eindex += 1
-                enow = e[eindex]
+                enow = safe_getindex(e, eindex, elen)
             else
                 Q, hh = Fast_Two_Sum(fnow, Q)
                 findex += 1
-                fnow = f[findex]
+                fnow = safe_getindex(f, findex, flen)
             end
             if !iszero(hh)
                 h = setindex!!(h, hh, hindex)
@@ -224,11 +224,11 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
                 if (fnow > enow) == (fnow > -enow)
                     Q, hh = Two_Sum(Q, enow)
                     eindex += 1
-                    enow = e[eindex]
+                    enow = safe_getindex(e, eindex, elen)
                 else
                     Q, hh = Two_Sum(Q, fnow)
                     findex += 1
-                    fnow = f[findex]
+                    fnow = safe_getindex(f, findex, flen)
                 end
                 if !iszero(hh)
                     h = setindex!!(h, hh, hindex)
@@ -258,7 +258,7 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
             h = setindex!!(h, Q, hindex)
             hindex += 1
         end
-        return h, hindex - 1
+        return h, min(hindex - 1, length(h))
     end
 end
 

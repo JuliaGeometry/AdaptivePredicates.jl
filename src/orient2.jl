@@ -57,6 +57,7 @@ end
 
 function orient2adapt(pa, pb, pc, detsum)
     @inbounds begin
+        T = eltype(pa)
         acx = pa[1] - pc[1]
         bcx = pb[1] - pc[1]
         acy = pa[2] - pc[2]
@@ -69,7 +70,7 @@ function orient2adapt(pa, pb, pc, detsum)
         B = (B0, B1, B2, B3)
 
         det = estimate(4, B)
-        errbound = ccwerrboundB(det) * detsum
+        errbound = ccwerrboundB(T) * detsum
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
         end
@@ -83,7 +84,7 @@ function orient2adapt(pa, pb, pc, detsum)
             return det
         end
 
-        errbound = ccwerrboundC(detsum) * detsum + resulterrbound(det) * Absolute(det)
+        errbound = ccwerrboundC(T) * detsum + resulterrbound(T) * Absolute(det)
         det += (acx * bcytail + bcy * acxtail) - (acy * bcxtail + bcx * acytail)
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
@@ -93,7 +94,6 @@ function orient2adapt(pa, pb, pc, detsum)
         t1, t0 = Two_Product(acytail, bcx)
         u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
         u = (u0, u1, u2, u3)
-        T = eltype(pa)
         h8 = ntuple(_ -> zero(T), Val(8))
         C1, C1length = fast_expansion_sum_zeroelim(4, B, 4, u, h8)
 
@@ -117,6 +117,7 @@ end
 
 function orient2(pa, pb, pc)
     @inbounds begin
+        T = eltype(pa)
         detleft = (pa[1] - pc[1]) * (pb[2] - pc[2])
         detright = (pa[2] - pc[2]) * (pb[1] - pc[1])
         det = detleft - detright
@@ -137,7 +138,7 @@ function orient2(pa, pb, pc)
             return det
         end
 
-        errbound = ccwerrboundA(detsum) * detsum
+        errbound = ccwerrboundA(T) * detsum
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
         end
