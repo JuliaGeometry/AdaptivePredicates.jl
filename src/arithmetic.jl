@@ -258,7 +258,7 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
             h = setindex!!(h, Q, hindex)
             hindex += 1
         end
-        return h, min(hindex - 1, length(h))
+        return h, hindex - 1
     end
 end
 
