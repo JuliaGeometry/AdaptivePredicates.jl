@@ -1,7 +1,6 @@
 using AdaptivePredicates
 using Test
 using Supposition
-using BenchmarkTools
 import ExactPredicates: ExactPredicates
 using Aqua
 
