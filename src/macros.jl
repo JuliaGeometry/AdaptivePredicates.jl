@@ -57,7 +57,7 @@ end
 end
 
 @inline function Split(a)
-    c = splitter(a) * a
+    c = splitter(eltype(a)) * a
     abig = c - a
     ahi = c - abig
     alo = a - ahi

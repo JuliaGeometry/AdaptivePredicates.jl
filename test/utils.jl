@@ -23,12 +23,18 @@ argdims(method::ArithmeticMethod, i) = method.argdims[i]
 argdims(method::PredicateMethod, i) = method.argdims
 
 function _rand(::Type{T}) where {T}
-    s = rand((-1, 1))
-    f = rand(T)
-    e = T == Float64 ? rand(-100:200) : rand(-24:24)
-    return s * (one(f) + f) * T(2)^e # no subnormal normals will be generated here
+    if rand() < 1 / 4
+        # Generate a float
+        s = rand((-1, 1))
+        f = rand(T)
+        e = T == Float64 ? rand(-100:200) : rand(-24:24)
+        return s * (one(f) + f) * T(2)^e # no subnormal normals will be generated here
+    else
+        # Generate an integer 
+        return T(rand(-100:100))
+    end
 end
-const NTESTS = 10000
+const NTESTS = 50000
 macro repeat(args...)
     if length(args) == 1
         n = NTESTS
@@ -104,7 +110,7 @@ struct Expansion{T}
     h::Vector{T}
     hlen::Int # not necessarily length(h)
     function Expansion(h::Vector{T}, hlen::Int; check_zero=false) where {T}
-        check_zero && @test all(iszero, view(h, hlen+1:length(h))) # For compress, the remaining components don't need to be zero
+        check_zero && @test all(iszero, view(h, hlen+1:length(h))) && hlen ≤ length(h) # For compress, the remaining components don't need to be zero
         return new{T}(h, hlen)
     end
 end
@@ -123,19 +129,41 @@ function ⪧(LHS, RHS; kwargs...)
     return Expansion(LHS; kwargs...) == Expansion(RHS; kwargs...)
 end
 
-const non_check_zeros = (:compress, :expansion_sum_zeroelim2, :expansion_sum_zeroelim1)
-function test_f(method::Method)
-    return _test_f(method)
+struct FailedTest
+    LHSf::Function
+    RHSf::Function
+    LHSv::Any
+    RHSv::Any
+    args::Tuple
 end
-function test_f(method::PredicateMethod)
-    for suffix in (:fast, :exact, :slow, :adapt, Symbol())
+
+function retry(failures::Vector{FailedTest})
+    remaining = Vector{FailedTest}()
+    foreach(failures) do failure 
+        LHSf = failure.LHSf
+        RHSv, args = failure.RHSv, failure.args
+        LHSv = LHSf(args...)
+        flag = ⪧(LHSv, RHSv; check_zero = nameof(LHSf) ∉ non_check_zeros)
+        if !flag
+            push!(remaining, failure)
+        end
+    end
+    return remaining
+end
+
+const non_check_zeros = (:compress, :expansion_sum_zeroelim2, :expansion_sum_zeroelim1)
+function test_f(method::Method; failures)
+    return _test_f(method; failures)
+end
+function test_f(method::PredicateMethod; failures)
+    for suffix in (:fast, :exact, :adapt, :slow, Symbol())
         g = Symbol(method.f, suffix)
         _method = PredicateMethod(g, method.nargs, method.argdims)
-        _test_f(_method)
+        _test_f(_method; failures)
     end
     return true
 end
-function _test_f(method::Method)
+function _test_f(method::Method; failures)
     args64 = genargs(method, Float64)
     args32 = genargs(method, Float32)
     LHS = getproperty(AP, method.f)
@@ -145,6 +173,10 @@ function _test_f(method::Method)
     LHSf32 = @inferred LHS(args32...)
     RHSf64 = RHS(_retup_complex(args64)...)
     RHSf32 = RHS(_retup_complex(args32)...)
+    flag1 = ⪧(LHSf64, RHSf64; check_zero=method.f ∉ non_check_zeros)
+    flag2 = ⪧(LHSf32, RHSf32; check_zero=method.f ∉ non_check_zeros)
+    !flag1 && push!(failures, FailedTest(LHS, RHS, LHSf64, RHSf64, args64))
+    !flag2 && push!(failures, FailedTest(LHS, RHS, LHSf32, RHSf32, args32))
     @test LHSf64 ⪧ RHSf64 check_zero = method.f ∉ non_check_zeros
     @test LHSf32 ⪧ RHSf32 check_zero = method.f ∉ non_check_zeros
     if method isa PredicateMethod
@@ -152,13 +184,17 @@ function _test_f(method::Method)
             LHSp = getproperty(AP, Symbol(method.f, :p))
             LHSf64p::Int = @inferred LHSp(args64...)
             LHSf32p::Int = @inferred LHSp(args32...)
+            flag1 = LHSf64p == Int(sign(RHSf64))
+            flag2 = LHSf32p == Int(sign(RHSf32))
+            !flag1 && push!(failures, FailedTest(LHSp, RHS, LHSf64p, Int(sign(RHSf64)), args64))
+            !flag2 && push!(failures, FailedTest(LHSp, RHS, LHSf32p, Int(sign(RHSf32)), args32))
             @test LHSf64p == Int(sign(RHSf64))
             @test LHSf32p == Int(sign(RHSf32))
         end
         @test LHSf64 isa Float64
         @test LHSf32 isa Float32
         # Test concurrency
-        if rand() < 100/NTESTS
+        if rand() < 100 / NTESTS
             ap64 = Vector{Float64}(undef, 24)
             ap32 = Vector{Float32}(undef, 24)
             Base.Threads.@threads for i in 1:24

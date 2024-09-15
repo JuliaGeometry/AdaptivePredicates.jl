@@ -1,18 +1,14 @@
 function orient2fast(pa, pb, pc)
     @inbounds begin
-        acx = pa[1] - pc[1] 
+        acx = pa[1] - pc[1]
         bcx = pb[1] - pc[1]
         acy = pa[2] - pc[2]
-        bcy = pb[2] - pc[2] 
-        return acx * bcy - acy * bcx 
+        bcy = pb[2] - pc[2]
+        return acx * bcy - acy * bcx
     end
 end
 
 function orient2exact(pa, pb, pc)
-    cache = Orient2Cache{eltype(pa)}()
-    return _orient2exact(pa, pb, pc, cache)
-end
-function _orient2exact(pa, pb, pc, cache)
     @inbounds begin
         axby1, axby0 = Two_Product(pa[1], pb[2])
         axcy1, axcy0 = Two_Product(pa[1], pc[2])
@@ -29,17 +25,16 @@ function _orient2exact(pa, pb, pc, cache)
         cterms3, cterms2, cterms1, cterms0 = Two_Two_Diff(cxay1, cxay0, cxby1, cxby0)
         cterms = (cterms0, cterms1, cterms2, cterms3)
 
-        v, vlength = fast_expansion_sum_zeroelim(4, aterms, 4, bterms, cache.h8)
-        w, wlength = fast_expansion_sum_zeroelim(vlength, v, 4, cterms, cache.h12)
+        T = eltype(pa)
+        h8 = ntuple(_ -> zero(T), Val(8))
+        h12 = ntuple(_ -> zero(T), Val(12))
+        v, vlength = fast_expansion_sum_zeroelim(4, aterms, 4, bterms, h8)
+        w, wlength = fast_expansion_sum_zeroelim(vlength, v, 4, cterms, h12)
         return w[wlength]
     end
 end
 
 function orient2slow(pa, pb, pc)
-    cache = Orient2Cache{eltype(pa)}()
-    return _orient2slow(pa, pb, pc, cache)
-end
-function _orient2slow(pa, pb, pc, cache)
     @inbounds begin
         acx, acxtail = Two_Diff(pa[1], pc[1])
         acy, acytail = Two_Diff(pa[2], pc[2])
@@ -53,13 +48,16 @@ function _orient2slow(pa, pb, pc, cache)
         bxay7, bxay6, bxay5, bxay4, bxay3, bxay2, bxay1, bxay0 = Two_Two_Product(bcx, bcxtail, negate, negatetail)
         bxay = (bxay0, bxay1, bxay2, bxay3, bxay4, bxay5, bxay6, bxay7)
 
-        deter, deterlen = fast_expansion_sum_zeroelim(8, axby, 8, bxay, cache.h16)
+        T = eltype(pa)
+        h16 = ntuple(_ -> zero(T), Val(16))
+        deter, deterlen = fast_expansion_sum_zeroelim(8, axby, 8, bxay, h16)
         return deter[deterlen]
     end
 end
 
 function orient2adapt(pa, pb, pc, detsum)
     @inbounds begin
+        T = eltype(pa)
         acx = pa[1] - pc[1]
         bcx = pb[1] - pc[1]
         acy = pa[2] - pc[2]
@@ -72,7 +70,7 @@ function orient2adapt(pa, pb, pc, detsum)
         B = (B0, B1, B2, B3)
 
         det = estimate(4, B)
-        errbound = ccwerrboundB(det) * detsum
+        errbound = ccwerrboundB(T) * detsum
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
         end
@@ -86,35 +84,32 @@ function orient2adapt(pa, pb, pc, detsum)
             return det
         end
 
-        errbound = ccwerrboundC(detsum) * detsum + resulterrbound(det) * Absolute(det)
+        errbound = ccwerrboundC(T) * detsum + resulterrbound(T) * Absolute(det)
         det += (acx * bcytail + bcy * acxtail) - (acy * bcxtail + bcx * acytail)
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
         end
 
-        cache = Orient2Cache{eltype(pa)}()
-        return _orient2adapt(acxtail, bcy, acytail, bcx, B, acx, bcytail, acy, bcxtail, cache)
-    end
-end
-function _orient2adapt(acxtail, bcy, acytail, bcx, B, acx, bcytail, acy, bcxtail, cache)
-    @inbounds begin
         s1, s0 = Two_Product(acxtail, bcy)
         t1, t0 = Two_Product(acytail, bcx)
         u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
         u = (u0, u1, u2, u3)
-        C1, C1length = fast_expansion_sum_zeroelim(4, B, 4, u, cache.h8)
+        h8 = ntuple(_ -> zero(T), Val(8))
+        C1, C1length = fast_expansion_sum_zeroelim(4, B, 4, u, h8)
 
         s1, s0 = Two_Product(acx, bcytail)
         t1, t0 = Two_Product(acy, bcxtail)
         u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
         u = (u0, u1, u2, u3)
-        C2, C2length = fast_expansion_sum_zeroelim(C1length, C1, 4, u, cache.h12)
+        h12 = ntuple(_ -> zero(T), Val(12))
+        C2, C2length = fast_expansion_sum_zeroelim(C1length, C1, 4, u, h12)
 
         s1, s0 = Two_Product(acxtail, bcytail)
         t1, t0 = Two_Product(acytail, bcxtail)
         u3, u2, u1, u0 = Two_Two_Diff(s1, s0, t1, t0)
         u = (u0, u1, u2, u3)
-        D, Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, cache.h16)
+        h16 = ntuple(_ -> zero(T), Val(16))
+        D, Dlength = fast_expansion_sum_zeroelim(C2length, C2, 4, u, h16)
 
         return D[Dlength]
     end
@@ -122,6 +117,7 @@ end
 
 function orient2(pa, pb, pc)
     @inbounds begin
+        T = eltype(pa)
         detleft = (pa[1] - pc[1]) * (pb[2] - pc[2])
         detright = (pa[2] - pc[2]) * (pb[1] - pc[1])
         det = detleft - detright
@@ -142,7 +138,7 @@ function orient2(pa, pb, pc)
             return det
         end
 
-        errbound = ccwerrboundA(detsum) * detsum
+        errbound = ccwerrboundA(T) * detsum
         if (det ≥ errbound) || (-det ≥ errbound)
             return det
         end

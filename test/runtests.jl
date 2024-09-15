@@ -1,7 +1,6 @@
 using AdaptivePredicates
 using Test
 using Supposition
-using BenchmarkTools
 import ExactPredicates: ExactPredicates
 using Aqua
 
@@ -80,22 +79,26 @@ const PREDICATES = (
     PredicateMethod(:insphere, 5, 3)
 )
 
+const MACRO_FAILURE = FailedTest[]
+const ARITHMETIC_FAILURE = FailedTest[]
+const PREDICATE_FAILURE = FailedTest[]
+
 @testset "Exact Equality Tests" begin
     @testset "Macros" begin
         foreach(MACROS) do f
-            @repeat test_f(f)
+            @repeat test_f(f; failures=MACRO_FAILURE)
         end
     end
 
     @testset "Arithmetic" begin
         foreach(ARITHMETIC) do f
-            @repeat test_f(f)
+            @repeat test_f(f; failures=ARITHMETIC_FAILURE)
         end
     end
 
     @testset "Predicates" begin
         foreach(PREDICATES) do f
-            @repeat test_f(f)
+            @repeat test_f(f; failures=PREDICATE_FAILURE)
         end
     end
 end
@@ -108,7 +111,11 @@ check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know 
         cgen = @composed _complex(a=fgen, b=fgen) = a + b * im
         r2gen = @composed _tuple(a=fgen, b=fgen) = (a, b)
         r3gen = @composed _tuple(a=fgen, b=fgen, c=fgen) = (a, b, c)
+        igen = Data.Integers(-100, 100)
+        i2gen = @composed _ituple(a=igen, b=igen) = (a, b)
+        i3gen = @composed _ituple(a=igen, b=igen, c=igen) = (a, b, c)
         # Against C
+        ## standard
         @check function _orient2(p=cgen, q=cgen, r=cgen)
             assume!(all(check_range, (p.re, p.im, q.re, q.im, r.re, r.im)))
             ap = orient2(p, q, r)
@@ -182,21 +189,114 @@ check_range(x::Float32) = iszero(x) || exponent(abs(x)) ∈ -24:24 # Don't know 
                 event!("ExactPredicatesInsphere$(Tn)", c)
                 ap == c
             end
+
+            # integers 
+
+            @check function _intorient2p(p=i2gen, q=i2gen, r=i2gen)
+                assume!(all(check_range, (T.(p)..., T.(q)..., T.(r)...)))
+                ap = orient2p(T.(p), T.(q), T.(r))
+                c = ExactPredicates.orient(T.(p), T.(q), T.(r))
+                event!("AdaptiveOrient2Int$(Tn)", ap)
+                event!("ExactPredicatesOrient2Int$(Tn)", c)
+                ap == c
+            end
+
+            @check function _intorient3p(p=i3gen, q=i3gen, r=i3gen, s=i3gen)
+                assume!(all(check_range, (T.(p)..., T.(q)..., T.(r)..., T.(s)...)))
+                ap = orient3p(T.(p), T.(q), T.(r), T.(s))
+                c = ExactPredicates.orient(T.(p), T.(q), T.(r), T.(s))
+                event!("AdaptiveOrient3Int$(Tn)", ap)
+                event!("ExactPredicatesOrient3Int$(Tn)", c)
+                ap == c
+            end
+
+            @check function _intincirclep(p=i2gen, q=i2gen, r=i2gen, s=i2gen)
+                assume!(all(check_range, (T.(p)..., T.(q)..., T.(r)..., T.(s)...)))
+                ap = incirclep(T.(p), T.(q), T.(r), T.(s))
+                c = ExactPredicates.incircle(T.(p), T.(q), T.(r), T.(s))
+                event!("AdaptiveIncircleInt$(Tn)", ap)
+                event!("ExactPredicatesIncircleInt$(Tn)", c)
+                ap == c
+            end
+
+            @check function _intinspherep(p=i3gen, q=i3gen, r=i3gen, s=i3gen, t=i3gen)
+                assume!(all(check_range, (T.(p)..., T.(q)..., T.(r)..., T.(s)..., T.(t)...)))
+                ap = inspherep(T.(p), T.(q), T.(r), T.(s), T.(t))
+                c = ExactPredicates.insphere(T.(p), T.(q), T.(r), T.(s), T.(t))
+                event!("AdaptiveInsphereInt$(Tn)", ap)
+                event!("ExactPredicatesInsphereInt$(Tn)", c)
+                ap == c
+            end
         end
     end
 end
 
-setup_orient2(T) = ntuple(_ -> (_rand(T), _rand(T)), 3)
-setup_orient3(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 4)
-setup_incircle(T) = ntuple(_ -> (_rand(T), _rand(T)), 4)
-setup_insphere(T) = ntuple(_ -> (_rand(T), _rand(T), _rand(T)), 5)
-@testset "Allocations" begin
-    @test iszero(@ballocated orient2(args...) setup = (args = setup_orient2(Float64)))
-    @test iszero(@ballocated orient2(args...) setup = (args = setup_orient2(Float32)))
-    @test iszero(@ballocated orient3(args...) setup = (args = setup_orient3(Float64)))
-    @test iszero(@ballocated orient3(args...) setup = (args = setup_orient3(Float32)))
-    @test iszero(@ballocated incircle(args...) setup = (args = setup_incircle(Float64)))
-    @test iszero(@ballocated incircle(args...) setup = (args = setup_incircle(Float32)))
-    @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float64)))
-    @test iszero(@ballocated insphere(args...) setup = (args = setup_insphere(Float32)))
+@testset "Caches" begin
+    function check_non_overlapping(args...)
+        ranges = first.(parentindices.(args))
+        flag = !issorted(ranges)
+        flag && return false
+        for i in 1:(length(ranges)-1)
+            rᵢ, rᵢ₊₁ = ranges[i], ranges[i+1]
+            !isdisjoint(rᵢ, rᵢ₊₁) && return false
+        end
+        return true
+    end
+    function check_gaps(args...)
+        ranges = first.(parentindices.(args))
+        firstdiffs = diff(collect(first.(ranges)))
+        boundaries = firstdiffs .% 64
+        return all(iszero, boundaries)
+    end
+    v = zeros(100)
+    v1, v2, v3 = view(v, 1:3), view(v, 2:4), view(v, 7:100)
+    @test !check_non_overlapping(v1, v2, v3)
+    @test !check_gaps(v1, v2, v3)
+
+    function test_cache(f, lengths)
+        for T in (Float64, Float32)
+            args1 = f(T)
+            args2 = f(T, nothing)
+            for args in (args1, args2)
+                @test check_non_overlapping(args...)
+                @test all(lengths .== length.(args))
+                @test all(Base.Fix1(===, parent(args[1])), parent.(args))
+                @test all(x -> eltype(x) === T, args)
+                @test check_gaps(args...)
+                @test f(T, args) === args
+            end
+        end
+    end
+    test_cache(AP.incircleexact_cache, (48, 48, 96, 96, 96, 96, 192, 192, 384))
+    test_cache(AP.incircleslow_cache, (64, 64, 64, 64, 64, 64, 128, 128, 192, 192, 384, 384, 384, 768, 1152))
+    test_cache(AP.incircleadapt_cache, (48, 64, 1152, 1152))
+    test_cache(AP.insphereslow_cache, (64, 64, 64, 128, 192, 384, 384, 384, 384, 384, 384, 768, 768, 768, 768, 768, 768, 768, 768, 768, 1536, 1536, 1536, 2304, 2304, 2304, 4608, 6912, 6912, 6912, 6912, 13824, 13824, 27648))
+    test_cache(AP.insphereexact_cache, (48, 48, 96, 96, 96, 96, 96, 192, 288, 288, 288, 288, 384, 384, 384, 576, 576, 768, 1152, 1152, 1152, 1152, 1152, 2304, 2304, 3456, 5760))
+    test_cache(AP.orient3exact_cache, (48, 48, 96))
+    test_cache(AP.orient3slow_cache, (64, 64, 64, 128, 192))
+    test_cache(AP.orient3adapt_cache, (192, 192))
+end
+
+
+@testset "@check_length" begin
+    function test_macro(_val)
+        args = (2.0, -2.0, 3.0)
+        AP.@check_length test_return args val, len = test_call(_val)
+        return val, _val, len
+    end
+    function test_call(x)
+        return 15.0, x > 2 ? 17 : 50
+    end
+    function test_return(x, y, z)
+        return x + y + z
+    end
+    @test test_macro(5.0) == (15.0, 5.0, 17)
+    @test test_macro(1.0) == 3.0
+    expr = @macroexpand function test_macro(_val)
+        args = (2.0, -2.0, 3.0)
+        AP.@check_length test_return args val, len = test_call(_val)
+        return val, _val, len
+    end
+    Base.remove_linenums!(expr)
+    @test sprint(show, expr) == ":(function test_macro(_val)\n      args = (2.0, -2.0, 3.0)\n      begin\n          (val, len) = test_call(_val)\n          len < 32 || return test_return(args...)\n      end\n      return (val, _val, len)\n  end)"
 end

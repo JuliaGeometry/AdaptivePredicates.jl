@@ -1,6 +1,6 @@
-@inline setindex!!(tup::Tuple, value, index) = @inbounds Base.setindex(tup, value, index)
+@inline setindex!!(tup::Tuple, value, index) = @inbounds index > length(tup) ? tup : Base.setindex(tup, value, index)
 @inline setindex!!(vec::AbstractVector, value, index) = @inbounds Base.setindex!(vec, value, index)
-@inline safe_getindex(e, eindex, elen) = eindex ≤ elen ? @inbounds(e[eindex]) : zero(eltype(e)) # Shewchuk's code is relying on undefined behaviour from out-of-bounds access where we call this. We need to be careful.
+@inline safe_getindex(e, eindex, elen) = (eindex ≤ elen && eindex ≤ length(e)) ? @inbounds(e[eindex]) : zero(eltype(e)) # Shewchuk's code is relying on undefined behaviour from out-of-bounds access where we call this. We need to be careful.
 
 function grow_expansion(elen, e, b, h)
     @inbounds begin
@@ -197,8 +197,8 @@ function fast_expansion_sum_zeroelim(elen, e, flen, f, h)
         fnow = f[1]
         eindex = findex = 1
         if (fnow > enow) == (fnow > -enow)
-            Q = enow
-            eindex += 1
+            Q = enow 
+            eindex += 1 
             enow = safe_getindex(e, eindex, elen)
         else
             Q = fnow
